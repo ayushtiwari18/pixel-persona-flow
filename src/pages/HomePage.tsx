@@ -1,4 +1,3 @@
-
 import HeroSection from "@/components/sections/HeroSection";
 import AboutSection from "@/components/sections/AboutSection";
 import SkillsSection from "@/components/sections/SkillsSection";
@@ -21,8 +20,9 @@ export default function HomePage() {
         <ProjectsSection limit={6} />
         <CertificationsSection limit={3} />
         <CodingProfilesSection
-          githubUsername="janedeveloper"
-          leetCodeUsername="janedeveloper"
+          githubUsername="ayushtiwari18"
+          leetCodeUsername="_aayush03"
+          hackerRankUsername="ayushtiwari10201"
         />
         <BlogSection limit={4} />
         <ContactSection />

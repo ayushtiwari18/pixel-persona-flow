@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -17,17 +16,20 @@ export default function CodingProfilePage() {
               transition={{ duration: 0.5 }}
               className="mb-12 text-center"
             >
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-4">Coding Profiles</h1>
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-4">
+                Coding Profiles
+              </h1>
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
                 My activity and achievements across various coding platforms.
               </p>
             </motion.div>
           </div>
         </section>
-        
-        <CodingProfilesSection 
-          githubUsername="janedeveloper"
-          leetCodeUsername="janedeveloper"
+
+        <CodingProfilesSection
+          githubUsername="ayushtiwari18"
+          leetCodeUsername="_aayush03"
+          hackerRankUsername="ayushtiwari10201"
         />
       </main>
       <Footer />

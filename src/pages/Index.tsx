@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -22,8 +21,9 @@ const Index = () => {
         <ProjectsSection limit={6} />
         <CertificationsSection limit={3} />
         <CodingProfilesSection
-          githubUsername="janedeveloper"
-          leetCodeUsername="janedeveloper"
+          githubUsername="ayushtiwari18"
+          leetCodeUsername="_aayush03"
+          hackerRankUsername="ayushtiwari10201"
         />
         <BlogSection limit={4} />
         <ContactSection />
