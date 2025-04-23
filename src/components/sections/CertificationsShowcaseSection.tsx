@@ -45,7 +45,7 @@ export default function CertificationsShowcaseSection() {
 
   const Card = ({ cert }: { cert: Certificate }) => (
     <motion.div
-      className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col"
+      className="bg-background rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col border border-border"
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.10 }}
@@ -63,17 +63,17 @@ export default function CertificationsShowcaseSection() {
             {cert.title}
             <BadgeCheck size={18} className="text-primary" />
           </h3>
-          <p className="text-sm text-gray-600">{cert.issuer}</p>
+          <p className="text-sm text-muted-foreground">{cert.issuer}</p>
         </div>
         <div className="flex items-center justify-between mt-4">
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-muted-foreground">
             {format(new Date(cert.date), "PPP")}
           </span>
           <a
             href={cert.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center text-indigo-600 text-sm font-medium story-link"
+            className="flex items-center text-primary text-sm font-medium hover:underline"
             aria-label="Verify certification"
           >
             <ExternalLink className="h-4 w-4 mr-1" />
@@ -85,7 +85,7 @@ export default function CertificationsShowcaseSection() {
   );
 
   return (
-    <section id="certifications" className="py-20 bg-gray-50 text-gray-800">
+    <section id="certifications" className="py-20 bg-muted/30 text-foreground">
       <div className="max-w-6xl mx-auto px-4">
         <motion.h2
           className="text-3xl font-bold mb-10 text-center"
