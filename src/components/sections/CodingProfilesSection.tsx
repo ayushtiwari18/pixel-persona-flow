@@ -1,13 +1,9 @@
-
 import React, { useEffect, useState } from "react";
 import { PieChart as PieChartIcon } from "lucide-react";
 import { useSimulatedGithubCalendar } from "./coding-profiles/useSimulatedGithubCalendar";
-import GithubProfilePanel, {
-  GITHUB_CALENDAR_WEEKS,
-  GITHUB_DAYS_IN_WEEK,
-} from "./coding-profiles/GithubProfilePanel";
-import LeetCodeProfilePanel from "./coding-profiles/LeetCodeProfilePanel";
-import HackerRankBadgesPanel from "./coding-profiles/HackerRankBadgesPanel";
+import GithubProfileBlock from "./coding-profiles/GithubProfileBlock";
+import LeetCodeProfileBlock from "./coding-profiles/LeetCodeProfileBlock";
+import HackerRankBadgesBlock from "./coding-profiles/HackerRankBadgesBlock";
 
 // PROPS: Pass usernames/badges from Admin Panel integration
 type CodingProfilesSectionProps = {
@@ -196,20 +192,20 @@ export function CodingProfilesSection({
           Coding Profiles
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <GithubProfilePanel
+          <GithubProfileBlock
             githubUsername={githubUsername}
             githubData={githubData}
             githubLoading={githubLoading}
             githubError={githubError}
             calendarData={calendarData}
           />
-          <LeetCodeProfilePanel
+          <LeetCodeProfileBlock
             leetCodeUsername={leetCodeUsername}
             lcStats={lcStats}
             lcLoading={lcLoading}
             lcError={lcError}
           />
-          <HackerRankBadgesPanel
+          <HackerRankBadgesBlock
             hackerRankUsername={hackerRankUsername}
             hackerRankBadges={hackerRankBadges}
             hackerRankLoading={hackerRankLoading}
