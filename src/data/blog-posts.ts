@@ -1,3 +1,4 @@
+
 import { BlogPost } from "@/types";
 
 export const blogPosts: BlogPost[] = [
@@ -716,7 +717,7 @@ function ProductCard({ product }) {
       <CardContent>
         <p className="text-neutral-600">{product.description}</p>
         <div className="mt-4">
-          <span className="text-lg font-bold">${product.price}</span>
+          <span className="text-lg font-bold">\\${product.price}</span>
         </div>
       </CardContent>
       <CardFooter className="flex justify-end">

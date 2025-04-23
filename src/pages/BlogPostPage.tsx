@@ -95,21 +95,21 @@ export default function BlogPostPage() {
               transition={{ duration: 0.5 }}
             >
               <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">
-                {post.title}
+                {post?.title}
               </h1>
 
               <div className="flex flex-wrap items-center gap-4 mb-8 text-sm text-muted-foreground">
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-2" />
-                  <time dateTime={post.date}>{formatDate(post.date)}</time>
+                  <time dateTime={post?.date}>{post ? formatDate(post.date) : ''}</time>
                 </div>
                 <div className="flex items-center">
                   <Clock className="h-4 w-4 mr-2" />
-                  <span>{post.readTime} min read</span>
+                  <span>{post?.readTime} min read</span>
                 </div>
               </div>
 
-              {post.coverImage && (
+              {post?.coverImage && (
                 <div className="mb-8 rounded-lg overflow-hidden">
                   <img
                     src={post.coverImage}
@@ -142,23 +142,25 @@ export default function BlogPostPage() {
                     },
                   }}
                 >
-                  {post.content}
+                  {post?.content ?? ''}
                 </ReactMarkdown>
               </div>
 
-              <div className="mt-12 pt-6 border-t">
-                <div className="flex flex-wrap gap-2">
-                  {post.tags.map((tag, i) => (
-                    <Link
-                      key={i}
-                      to={`/blog?tag=${tag}`}
-                      className="text-sm bg-muted px-3 py-1 rounded-full text-muted-foreground hover:bg-muted/80 transition-colors"
-                    >
-                      {tag}
-                    </Link>
-                  ))}
+              {post?.tags && (
+                <div className="mt-12 pt-6 border-t">
+                  <div className="flex flex-wrap gap-2">
+                    {post.tags.map((tag, i) => (
+                      <Link
+                        key={i}
+                        to={`/blog?tag=${tag}`}
+                        className="text-sm bg-muted px-3 py-1 rounded-full text-muted-foreground hover:bg-muted/80 transition-colors"
+                      >
+                        {tag}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </motion.div>
           </div>
         </article>
