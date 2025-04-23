@@ -1,28 +1,55 @@
 
 import { useState, useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { projects } from "@/data/projects";
 import { formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Github, ExternalLink } from "lucide-react";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 type Category = 'all' | 'web' | 'mobile' | 'backend' | 'machine-learning' | 'other';
 
+// Modal Animation Variants
+const modalVariants = {
+  hidden: { opacity: 0, y: 50, scale: 0.97 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.25, type: "spring" }
+  },
+  exit: { opacity: 0, y: 50, scale: 0.97, transition: { duration: 0.15 } }
+};
+
 // Project Card Component
-const ProjectCard = ({ 
-  project, 
-  index 
-}: { 
-  project: typeof projects[0]; 
-  index: number 
+const ProjectCard = ({
+  project,
+  index,
+  onClick,
+}: {
+  project: typeof projects[0];
+  index: number;
+  onClick: () => void;
 }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
-      className="bg-background rounded-lg overflow-hidden shadow-sm border group hover:shadow-md transition-all duration-300"
+      whileHover={{ scale: 1.03 }}
+      className="cursor-pointer bg-background rounded-lg overflow-hidden shadow-sm border group hover:shadow-lg transition-all duration-300"
+      onClick={onClick}
+      tabIndex={0}
+      aria-label={`Open details for ${project.title}`}
     >
       <div className="relative h-48 overflow-hidden">
         <img
@@ -72,6 +99,7 @@ const ProjectCard = ({
                 rel="noreferrer"
                 className="text-muted-foreground hover:text-foreground transition-colors"
                 aria-label="View GitHub repository"
+                onClick={(e) => e.stopPropagation()}
               >
                 <Github className="h-5 w-5" />
               </a>
@@ -83,44 +111,133 @@ const ProjectCard = ({
                 rel="noreferrer"
                 className="text-muted-foreground hover:text-foreground transition-colors"
                 aria-label="View live demo"
+                onClick={(e) => e.stopPropagation()}
               >
                 <ExternalLink className="h-5 w-5" />
               </a>
             )}
           </div>
-          <Link
-            to={`/projects/${project.id}`}
-            className="text-primary text-sm font-medium hover:underline"
-          >
-            View Details
-          </Link>
+          <span className="text-xs text-muted-foreground">
+            {/* Optional: fake submission count for demo */}
+            {project.submissionCount
+              ? `Submissions: ${project.submissionCount}`
+              : ""}
+          </span>
         </div>
       </div>
     </motion.div>
   );
 };
 
+// Modal/Dialog Content for Project Details
+function ProjectDialog({ open, project, onClose }: { open: boolean; project: typeof projects[0] | null; onClose: () => void }) {
+  return (
+    <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
+      <AnimatePresence>
+        {open && project && (
+          <DialogContent asChild>
+            <motion.div
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="w-full max-w-xl"
+              style={{ outline: 'none' }}
+            >
+              <DialogHeader>
+                <DialogTitle className="flex items-center justify-between gap-2">
+                  <span>{project.title}</span>
+                  {project.featured && (
+                    <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded ml-4">
+                      Featured
+                    </span>
+                  )}
+                </DialogTitle>
+                <DialogDescription className="my-2 text-muted-foreground">{formatDate(project.date)}</DialogDescription>
+              </DialogHeader>
+              <div className="my-4">
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  className="w-full rounded-lg mb-6 object-cover max-h-56"
+                />
+                <div className="mb-3">
+                  <h3 className="font-medium mb-2">Description</h3>
+                  <p className="text-muted-foreground">{project.description}</p>
+                </div>
+                <div className="mb-3">
+                  <h3 className="font-medium mb-2">Technologies</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {project.technologies.map((tech, i) => (
+                      <span key={i} className="bg-muted px-3 py-1 rounded-md text-xs">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                {/* Optionally more rich info / screenshots here */}
+                <div>
+                  <h3 className="font-medium mb-2">Details & Links</h3>
+                  <div className="flex flex-wrap items-center gap-3">
+                    {project.githubUrl && (
+                      <a
+                        href={project.githubUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1 text-blue-600 text-xs hover:underline"
+                      >
+                        <Github className="h-4 w-4" /> GitHub
+                      </a>
+                    )}
+                    {project.demoUrl && (
+                      <a
+                        href={project.demoUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1 text-green-600 text-xs hover:underline"
+                      >
+                        <ExternalLink className="h-4 w-4" /> Live Demo
+                      </a>
+                    )}
+                  </div>
+                  {/* Simulate further info */}
+                  <div className="mt-4">
+                    <p className="text-xs text-muted-foreground"><strong>Submissions:</strong> {project.submissionCount ?? "—"}</p>
+                  </div>
+                </div>
+              </div>
+              <DialogClose asChild>
+                <Button variant="outline" className="mt-2 w-full">Close</Button>
+              </DialogClose>
+            </motion.div>
+          </DialogContent>
+        )}
+      </AnimatePresence>
+    </Dialog>
+  );
+}
+
 export default function ProjectsSection({ limit = 6 }: { limit?: number }) {
   const [activeCategory, setActiveCategory] = useState<Category>("all");
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.1 });
+  const [selectedProject, setSelectedProject] = useState<typeof projects[0] | null>(null);
 
-  // Filter projects by category
-  const filteredProjects = activeCategory === "all"
-    ? projects
-    : projects.filter(project => project.category === activeCategory);
+  // Filter by category
+  const filteredProjects =
+    activeCategory === "all"
+      ? projects
+      : projects.filter((project) => project.category === activeCategory);
 
   // Limit the number of projects displayed if needed
   const displayedProjects = limit ? filteredProjects.slice(0, limit) : filteredProjects;
 
-  // Category filters
+  // Categories for filter
   const categories: { value: Category; label: string }[] = [
     { value: "all", label: "All Projects" },
     { value: "web", label: "Web" },
     { value: "mobile", label: "Mobile" },
     { value: "backend", label: "Backend" },
     { value: "machine-learning", label: "ML/AI" },
-    { value: "other", label: "Other" }
+    { value: "other", label: "Other" },
   ];
 
   return (
@@ -133,7 +250,7 @@ export default function ProjectsSection({ limit = 6 }: { limit?: number }) {
           className="mb-12 text-center"
         >
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
-            Featured Projects
+            Projects
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             A selection of projects I've worked on, showcasing my skills and experience in various technologies.
@@ -141,7 +258,7 @@ export default function ProjectsSection({ limit = 6 }: { limit?: number }) {
         </motion.div>
 
         {/* Category Filters */}
-        <div ref={ref} className="mb-10">
+        <div className="mb-10">
           <div className="flex flex-wrap justify-center gap-2">
             {categories.map((category) => (
               <button
@@ -160,11 +277,23 @@ export default function ProjectsSection({ limit = 6 }: { limit?: number }) {
         </div>
 
         {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {displayedProjects.map((project, index) => (
-            <ProjectCard key={project.id} project={project} index={index} />
+            <ProjectCard
+              key={project.id}
+              project={project}
+              index={index}
+              onClick={() => setSelectedProject(project)}
+            />
           ))}
         </div>
+
+        {/* Modal/Dialog for project details */}
+        <ProjectDialog
+          open={!!selectedProject}
+          project={selectedProject}
+          onClose={() => setSelectedProject(null)}
+        />
 
         {/* View All Button */}
         {limit && projects.length > limit && (
