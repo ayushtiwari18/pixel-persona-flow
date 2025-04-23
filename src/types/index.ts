@@ -77,6 +77,14 @@ export interface CodingProfile {
   };
 }
 
+export interface HackerRankBadge {
+  id: string;
+  name: string;
+  level: number;
+  stars: number;
+  colorClass: string;
+}
+
 export interface ContactFormData {
   name: string;
   email: string;

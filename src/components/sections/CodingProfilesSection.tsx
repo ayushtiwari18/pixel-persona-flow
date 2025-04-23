@@ -1,18 +1,20 @@
+
 import React, { useEffect, useState } from "react";
 import {
   PieChart,
   Pie,
   Cell,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from "recharts";
 import {
   Github,
   PieChart as PieChartIcon,
   Badge as BadgeIcon,
+  Loader,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // PROPS: Pass usernames/badges from Admin Panel integration
 type CodingProfilesSectionProps = {
@@ -90,53 +92,27 @@ export function CodingProfilesSection({
   const [hackerRankLoading, setHackerRankLoading] = useState(true);
   const [hackerRankError, setHackerRankError] = useState(false);
 
-  // Fetch LeetCode Stats using GraphQL API
+  // Fetch LeetCode Stats using the public API
   useEffect(() => {
     const fetchLeetCodeStats = async () => {
       setLcLoading(true);
       setLcError(false);
 
       try {
-        // First try the public API endpoint
         const response = await fetch(
           `https://leetcode-stats-api.herokuapp.com/${leetCodeUsername}`
         );
 
-        if (response.ok) {
-          const data = await response.json();
-          setLcStats(data);
-          setLcLoading(false);
-          return;
+        if (!response.ok) {
+          throw new Error("Failed to fetch LeetCode data");
         }
 
-        // If that fails, use our fallback method
-        // In a real application, you'd want to set up a server-side proxy to make this GraphQL request
-        // For now, we'll simulate a response based on the user info
-
-        // Simulated data based on your profile - in a real app you'd fetch this
-        const fallbackData = {
-          status: "success",
-          message: "retrieved data successfully",
-          totalSolved: 44,
-          totalQuestions: 2600,
-          easySolved: 23,
-          easyTotal: 650,
-          mediumSolved: 20,
-          mediumTotal: 1400,
-          hardSolved: 1,
-          hardTotal: 550,
-          acceptanceRate: 58.67,
-          ranking: 305200,
-          contributionPoints: 229,
-          reputation: 0,
-          submissionCalendar: {},
-        };
-
-        setLcStats(fallbackData);
-        setLcLoading(false);
+        const data = await response.json();
+        setLcStats(data);
       } catch (error) {
         console.error("LeetCode API Error:", error);
         setLcError(true);
+      } finally {
         setLcLoading(false);
       }
     };
@@ -155,20 +131,21 @@ export function CodingProfilesSection({
         const userResponse = await fetch(
           `https://api.github.com/users/${githubUsername}`
         );
-        if (!userResponse.ok)
+        
+        if (!userResponse.ok) {
           throw new Error("Failed to fetch GitHub user data");
-        const userData = (await userResponse.ok)
-          ? await userResponse.json()
-          : null;
+        }
+        
+        const userData = await userResponse.json();
         setGithubData(userData);
 
-        // Generate simulated contribution data
-        // In a real app, you'd use GitHub's API with authentication to get actual contribution data
+        // For contributions data, we'll use simulated data since accessing real
+        // contribution data requires authentication
         setCalendarData(generateSimulatedContributionData());
-        setGithubLoading(false);
       } catch (error) {
         console.error("GitHub API Error:", error);
         setGithubError(true);
+      } finally {
         setGithubLoading(false);
       }
     };
@@ -208,7 +185,7 @@ export function CodingProfilesSection({
   useEffect(() => {
     // In a real application, you would fetch HackerRank data from their API
     // However, HackerRank doesn't provide a public API for badges
-    // We'll simulate fetching based on the provided username
+    // So we'll simulate fetching based on the provided username
     const fetchHackerRankData = async () => {
       setHackerRankLoading(true);
       setHackerRankError(false);
@@ -253,10 +230,10 @@ export function CodingProfilesSection({
         ];
 
         setHackerRankBadges(userBadges);
-        setHackerRankLoading(false);
       } catch (error) {
         console.error("HackerRank Data Error:", error);
         setHackerRankError(true);
+      } finally {
         setHackerRankLoading(false);
       }
     };
@@ -278,10 +255,10 @@ export function CodingProfilesSection({
     return (
       <div className="flex flex-col items-center">
         {githubLoading ? (
-          <div className="h-20 flex items-center justify-center">
-            <span className="text-muted-foreground">
-              Loading contributions...
-            </span>
+          <div className="grid grid-cols-12 gap-0.5 h-[85px] w-full max-w-[200px]">
+            {Array.from({ length: 7 * 12 }).map((_, i) => (
+              <Skeleton key={i} className="w-3 h-3 rounded-sm" />
+            ))}
           </div>
         ) : githubError ? (
           <div className="h-20 flex items-center justify-center text-red-500">
@@ -354,8 +331,10 @@ export function CodingProfilesSection({
     return (
       <div className="flex flex-wrap gap-2 justify-center">
         {hackerRankLoading ? (
-          <div className="h-20 flex items-center justify-center">
-            <span className="text-muted-foreground">Loading badges...</span>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 w-full">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="w-full h-14 rounded-full" />
+            ))}
           </div>
         ) : hackerRankError ? (
           <div className="h-20 flex items-center justify-center text-red-500">
@@ -395,8 +374,8 @@ export function CodingProfilesSection({
   }
 
   return (
-    <section id="coding-profiles" className="py-20 bg-white text-gray-800">
-      <div className="max-w-6xl mx-auto px-4">
+    <section id="coding-profiles" className="py-20">
+      <div className="container">
         <h2 className="text-3xl font-bold mb-10 flex items-center gap-3">
           <PieChartIcon className="inline" />
           Coding Profiles
@@ -409,14 +388,18 @@ export function CodingProfilesSection({
             </h3>
             {renderGithubCalendar()}
           </div>
+          
           {/* LeetCode Panel */}
           <div className="bg-background rounded-xl border shadow-sm px-6 py-6 flex flex-col items-center">
             <h3 className="text-xl font-semibold mb-4 flex gap-2 items-center">
               <PieChartIcon className="w-5 h-5" /> LeetCode Stats
             </h3>
             {lcLoading ? (
-              <div className="h-40 flex items-center justify-center w-full text-muted-foreground">
-                Loading...
+              <div className="h-40 w-full flex items-center justify-center">
+                <div className="flex flex-col items-center gap-2">
+                  <Loader className="w-6 h-6 animate-spin text-primary" />
+                  <p className="text-sm text-muted-foreground">Loading stats...</p>
+                </div>
               </div>
             ) : lcError ? (
               <div className="h-40 flex items-center justify-center w-full text-red-500">
@@ -462,14 +445,14 @@ export function CodingProfilesSection({
                     <span className="text-primary">Total:</span>{" "}
                     {lcStats.totalSolved} / {lcStats.totalQuestions}
                   </span>
-                  <span className="font-medium">
+                  {lcStats.ranking && <span className="font-medium">
                     <span className="text-primary">Rank:</span> #
-                    {lcStats.ranking}
-                  </span>
+                    {lcStats.ranking.toLocaleString()}
+                  </span>}
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
                   <a
-                    href={`https://leetcode.com/u/${leetCodeUsername}/`}
+                    href={`https://leetcode.com/${leetCodeUsername}/`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="underline hover:text-primary"
@@ -480,6 +463,7 @@ export function CodingProfilesSection({
               </>
             ) : null}
           </div>
+          
           {/* HackerRank Panel */}
           <div className="bg-background rounded-xl border shadow-sm px-6 py-6 flex flex-col items-center">
             <h3 className="text-xl font-semibold mb-4 flex gap-2 items-center">
