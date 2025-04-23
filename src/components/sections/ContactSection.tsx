@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Github, Linkedin, Twitter, Mail, Phone } from "lucide-react";
+import { Github, Linkedin, Twitter, Mail, Phone, Download } from "lucide-react";
 import { siteConfig } from "@/data/site-config";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ export default function ContactSection() {
     subject: "",
     message: ""
   });
+  const formEndpoint = siteConfig.formEndpoint || "https://formspree.io/f/your-default-endpoint";
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -26,24 +27,45 @@ export default function ContactSection() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      const res = await fetch(formEndpoint, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+        },
+        body: new FormData(e.target as HTMLFormElement),
+      });
+      const data = await res.json();
+      if (data.ok || data.success) {
+        toast({
+          title: "Message sent!",
+          description: "Thank you for your message. I'll get back to you soon.",
+        });
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          message: ""
+        });
+      } else {
+        toast({
+          title: "Oops! Something went wrong.",
+          description: data.error || "Please try again or email me directly.",
+          variant: "destructive",
+        });
+      }
+    } catch (err: any) {
       toast({
-        title: "Message sent!",
-        description: "Thank you for your message. I'll get back to you soon.",
+        title: "Network error!",
+        description: "Couldn't send your message. Please try again.",
+        variant: "destructive",
       });
-      setFormData({
-        name: "",
-        email: "",
-        subject: "",
-        message: ""
-      });
+    } finally {
       setIsSubmitting(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -94,43 +116,60 @@ export default function ContactSection() {
                 </div>
               </div>
 
-              <div className="pt-6">
-                <h4 className="font-medium mb-4">Connect with me</h4>
-                <div className="flex space-x-4">
-                  {siteConfig.links.github && (
-                    <a
-                      href={siteConfig.links.github}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="bg-muted p-3 rounded-full text-muted-foreground hover:text-foreground transition-colors"
-                      aria-label="GitHub"
-                    >
-                      <Github className="h-5 w-5" />
-                    </a>
-                  )}
-                  {siteConfig.links.linkedin && (
-                    <a
-                      href={siteConfig.links.linkedin}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="bg-muted p-3 rounded-full text-muted-foreground hover:text-foreground transition-colors"
-                      aria-label="LinkedIn"
-                    >
-                      <Linkedin className="h-5 w-5" />
-                    </a>
-                  )}
-                  {siteConfig.links.twitter && (
-                    <a
-                      href={siteConfig.links.twitter}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="bg-muted p-3 rounded-full text-muted-foreground hover:text-foreground transition-colors"
-                      aria-label="Twitter"
-                    >
-                      <Twitter className="h-5 w-5" />
-                    </a>
-                  )}
+              <div className="pt-6 space-y-4">
+                <div>
+                  <h4 className="font-medium mb-4">Connect with me</h4>
+                  <div className="flex space-x-4">
+                    {siteConfig.links.github && (
+                      <a
+                        href={siteConfig.links.github}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="bg-muted p-3 rounded-full text-muted-foreground hover:text-foreground transition-colors"
+                        aria-label="GitHub"
+                      >
+                        <Github className="h-5 w-5" />
+                      </a>
+                    )}
+                    {siteConfig.links.linkedin && (
+                      <a
+                        href={siteConfig.links.linkedin}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="bg-muted p-3 rounded-full text-muted-foreground hover:text-foreground transition-colors"
+                        aria-label="LinkedIn"
+                      >
+                        <Linkedin className="h-5 w-5" />
+                      </a>
+                    )}
+                    {siteConfig.links.twitter && (
+                      <a
+                        href={siteConfig.links.twitter}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="bg-muted p-3 rounded-full text-muted-foreground hover:text-foreground transition-colors"
+                        aria-label="Twitter"
+                      >
+                        <Twitter className="h-5 w-5" />
+                      </a>
+                    )}
+                  </div>
                 </div>
+                <Button
+                  asChild
+                  variant="secondary"
+                  className="w-full mt-2 flex items-center gap-2"
+                >
+                  <a
+                    href={siteConfig.resume}
+                    download
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Download className="h-5 w-5" />
+                    Download Resume
+                  </a>
+                </Button>
               </div>
             </div>
           </motion.div>
@@ -190,6 +229,8 @@ export default function ContactSection() {
                   required
                 />
               </div>
+              {/* Hidden input for Formspree to detect the human sender and handle spam filtering */}
+              <input type="hidden" name="_replyto" value={formData.email} />
               <Button type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? "Sending..." : "Send Message"}
               </Button>

@@ -12,5 +12,6 @@ export const siteConfig: SiteConfig = {
     twitter: "https://twitter.com/janedeveloper",
     dribbble: "https://dribbble.com/janedeveloper",
   },
-  resume: "/resume.pdf"
+  resume: "/resume.pdf",
+  formEndpoint: "https://formspree.io/f/moqojlpo", // Default Formspree endpoint (update as needed)
 };
