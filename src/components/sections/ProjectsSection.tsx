@@ -118,7 +118,6 @@ const ProjectCard = ({
             )}
           </div>
           <span className="text-xs text-muted-foreground">
-            {/* Optional: fake submission count for demo */}
             {project.submissionCount
               ? `Submissions: ${project.submissionCount}`
               : ""}
@@ -133,86 +132,86 @@ const ProjectCard = ({
 function ProjectDialog({ open, project, onClose }: { open: boolean; project: typeof projects[0] | null; onClose: () => void }) {
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
-      <AnimatePresence>
-        {open && project && (
-          <DialogContent asChild>
-            <motion.div
-              variants={modalVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="w-full max-w-xl"
-              style={{ outline: 'none' }}
-            >
-              <DialogHeader>
-                <DialogTitle className="flex items-center justify-between gap-2">
-                  <span>{project.title}</span>
-                  {project.featured && (
-                    <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded ml-4">
-                      Featured
-                    </span>
-                  )}
-                </DialogTitle>
-                <DialogDescription className="my-2 text-muted-foreground">{formatDate(project.date)}</DialogDescription>
-              </DialogHeader>
-              <div className="my-4">
-                <img
-                  src={project.image}
-                  alt={project.title}
-                  className="w-full rounded-lg mb-6 object-cover max-h-56"
-                />
-                <div className="mb-3">
-                  <h3 className="font-medium mb-2">Description</h3>
-                  <p className="text-muted-foreground">{project.description}</p>
-                </div>
-                <div className="mb-3">
-                  <h3 className="font-medium mb-2">Technologies</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {project.technologies.map((tech, i) => (
-                      <span key={i} className="bg-muted px-3 py-1 rounded-md text-xs">
-                        {tech}
+      {project && (
+        <DialogContent className="w-full max-w-xl">
+          <AnimatePresence mode="wait">
+            {open && (
+              <motion.div
+                variants={modalVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="w-full"
+                style={{ outline: 'none' }}
+              >
+                <DialogHeader>
+                  <DialogTitle className="flex items-center justify-between gap-2">
+                    <span>{project.title}</span>
+                    {project.featured && (
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded ml-4">
+                        Featured
                       </span>
-                    ))}
+                    )}
+                  </DialogTitle>
+                  <DialogDescription className="my-2 text-muted-foreground">{formatDate(project.date)}</DialogDescription>
+                </DialogHeader>
+                <div className="my-4">
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full rounded-lg mb-6 object-cover max-h-56"
+                  />
+                  <div className="mb-3">
+                    <h3 className="font-medium mb-2">Description</h3>
+                    <p className="text-muted-foreground">{project.description}</p>
+                  </div>
+                  <div className="mb-3">
+                    <h3 className="font-medium mb-2">Technologies</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {project.technologies.map((tech, i) => (
+                        <span key={i} className="bg-muted px-3 py-1 rounded-md text-xs">
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-medium mb-2">Details & Links</h3>
+                    <div className="flex flex-wrap items-center gap-3">
+                      {project.githubUrl && (
+                        <a
+                          href={project.githubUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 text-blue-600 text-xs hover:underline"
+                        >
+                          <Github className="h-4 w-4" /> GitHub
+                        </a>
+                      )}
+                      {project.demoUrl && (
+                        <a
+                          href={project.demoUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 text-green-600 text-xs hover:underline"
+                        >
+                          <ExternalLink className="h-4 w-4" /> Live Demo
+                        </a>
+                      )}
+                    </div>
+                    <div className="mt-4">
+                      <p className="text-xs text-muted-foreground"><strong>Submissions:</strong> {project.submissionCount ?? "—"}</p>
+                    </div>
                   </div>
                 </div>
-                {/* Optionally more rich info / screenshots here */}
-                <div>
-                  <h3 className="font-medium mb-2">Details & Links</h3>
-                  <div className="flex flex-wrap items-center gap-3">
-                    {project.githubUrl && (
-                      <a
-                        href={project.githubUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-1 text-blue-600 text-xs hover:underline"
-                      >
-                        <Github className="h-4 w-4" /> GitHub
-                      </a>
-                    )}
-                    {project.demoUrl && (
-                      <a
-                        href={project.demoUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-1 text-green-600 text-xs hover:underline"
-                      >
-                        <ExternalLink className="h-4 w-4" /> Live Demo
-                      </a>
-                    )}
-                  </div>
-                  {/* Simulate further info */}
-                  <div className="mt-4">
-                    <p className="text-xs text-muted-foreground"><strong>Submissions:</strong> {project.submissionCount ?? "—"}</p>
-                  </div>
-                </div>
-              </div>
-              <DialogClose asChild>
-                <Button variant="outline" className="mt-2 w-full">Close</Button>
-              </DialogClose>
-            </motion.div>
-          </DialogContent>
-        )}
-      </AnimatePresence>
+                <DialogClose asChild>
+                  <Button variant="outline" className="mt-2 w-full">Close</Button>
+                </DialogClose>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </DialogContent>
+      )}
     </Dialog>
   );
 }
