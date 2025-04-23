@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 
 // PROPS: Pass usernames/badges from Admin Panel integration
 type CodingProfilesSectionProps = {
-  githubUsername: string;
-  leetCodeUsername: string;
-  hackerRankBadges: Array<{ name: string; level: number; stars: number; colorClass?: string; }>;
+  githubUsername?: string;
+  leetCodeUsername?: string;
+  hackerRankBadges?: Array<{ name: string; level: number; stars: number; colorClass?: string; }>;
 };
 
 // Simple colors for the pie chart
@@ -22,9 +22,12 @@ const FALLBACK_HACKERRANK_BADGES = [
   { name: "SQL", level: 3, stars: 3, colorClass: "bg-purple-100 text-purple-800" },
 ];
 
+const DEFAULT_GITHUB_USERNAME = "janedeveloper";
+const DEFAULT_LEETCODE_USERNAME = "janedeveloper";
+
 export function CodingProfilesSection({
-  githubUsername,
-  leetCodeUsername,
+  githubUsername = DEFAULT_GITHUB_USERNAME,
+  leetCodeUsername = DEFAULT_LEETCODE_USERNAME,
   hackerRankBadges = FALLBACK_HACKERRANK_BADGES,
 }: CodingProfilesSectionProps) {
   // --- LeetCode State & Fetch ---
@@ -197,13 +200,5 @@ export function CodingProfilesSection({
   );
 }
 
-// Default export with fallback data for easy inclusion
-export default function CodingProfilesSectionDemo() {
-  return (
-    <CodingProfilesSection
-      githubUsername="janedeveloper"
-      leetCodeUsername="janedeveloper"
-      hackerRankBadges={FALLBACK_HACKERRANK_BADGES}
-    />
-  );
-}
+// Modified default export to accept the same props as the named export
+export default CodingProfilesSection;
