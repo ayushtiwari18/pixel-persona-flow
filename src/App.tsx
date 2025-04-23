@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +15,11 @@ import CertificationsPage from "./pages/CertificationsPage";
 import CodingProfilePage from "./pages/CodingProfilePage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
+import AdminProjectsPage from "./pages/admin/AdminProjectsPage";
+import AdminBlogPage from "./pages/admin/AdminBlogPage";
+import AdminCertificationsPage from "./pages/admin/AdminCertificationsPage";
+import AdminCodingProfilesPage from "./pages/admin/AdminCodingProfilesPage";
+import AdminProfilePage from "./pages/admin/AdminProfilePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +42,11 @@ const App = () => (
           <Route path="/coding-profile" element={<CodingProfilePage />} />
           <Route path="/admin" element={<AdminLoginPage />} />
           <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+          <Route path="/admin/projects" element={<AdminProjectsPage />} />
+          <Route path="/admin/blog" element={<AdminBlogPage />} />
+          <Route path="/admin/certifications" element={<AdminCertificationsPage />} />
+          <Route path="/admin/coding-profiles" element={<AdminCodingProfilesPage />} />
+          <Route path="/admin/profile" element={<AdminProfilePage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
