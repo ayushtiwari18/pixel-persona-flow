@@ -457,7 +457,7 @@ module.exports = {
         '6xl': '4rem',
       },
       spacing: {
-        // Custom spacing system
+        // Custom spacing scale
       },
       borderRadius: {
         none: '0',
@@ -711,14 +711,8 @@ With your design system in place, consuming it in your applications becomes simp
 import { Button } from './design-system/components/Button';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './design-system/components/Card';
 
-interface Product {
-  name: string;
-  description: string;
-  price: number;
-}
-
-function ProductCard({ product }) {
-  product = product || {};
+function ProductCard({ productData }) {
+  const product = productData || {};
   
   return (
     <Card>
