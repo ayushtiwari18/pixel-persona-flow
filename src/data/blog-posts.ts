@@ -706,7 +706,7 @@ With your design system in place, consuming it in your applications becomes simp
 
 \`\`\`jsx
 import { Button } from './design-system/components/Button';
-import { Card, CardHeader, CardTitle, CardContent } from './design-system/components/Card';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './design-system/components/Card';
 
 function ProductCard({ product }) {
   return (
@@ -717,7 +717,7 @@ function ProductCard({ product }) {
       <CardContent>
         <p className="text-neutral-600">{product.description}</p>
         <div className="mt-4">
-          <span className="text-lg font-bold">\\${product.price}</span>
+          <span className="text-lg font-bold">${product.price}</span>
         </div>
       </CardContent>
       <CardFooter className="flex justify-end">
