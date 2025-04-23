@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -8,14 +7,22 @@ import { projects } from "@/data/projects";
 import { blogPosts } from "@/data/blog-posts";
 import { certifications } from "@/data/certifications";
 import { Link } from "react-router-dom";
-import { Home, LogOut, Plus } from "lucide-react";
+import { Home, LogOut, Plus, Code } from "lucide-react";
 
 export default function AdminDashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
 
+  const [githubUsername, setGithubUsername] = useState("janedeveloper");
+  const [leetCodeUsername, setLeetCodeUsername] = useState("janedeveloper");
+  const [hackerRankBadges, setHackerRankBadges] = useState([
+    { name: "Problem Solving", level: 6, stars: 5, colorClass: "bg-green-100 text-green-800" },
+    { name: "JavaScript", level: 5, stars: 5, colorClass: "bg-yellow-100 text-yellow-800" },
+    { name: "Python", level: 4, stars: 4, colorClass: "bg-blue-100 text-blue-800" },
+    { name: "SQL", level: 3, stars: 3, colorClass: "bg-purple-100 text-purple-800" },
+  ]);
+
   useEffect(() => {
-    // Check if user is authenticated
     const authStatus = localStorage.getItem("isAuthenticated");
     if (authStatus !== "true") {
       navigate("/admin");
@@ -30,7 +37,7 @@ export default function AdminDashboardPage() {
   };
 
   if (!isAuthenticated) {
-    return null; // Don't render anything while checking authentication
+    return null;
   }
 
   return (
@@ -62,7 +69,7 @@ export default function AdminDashboardPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div className="bg-background rounded-lg shadow-sm border p-6">
               <h2 className="text-2xl font-bold mb-2">{projects.length}</h2>
               <p className="text-muted-foreground">Projects</p>
@@ -75,6 +82,10 @@ export default function AdminDashboardPage() {
               <h2 className="text-2xl font-bold mb-2">{certifications.length}</h2>
               <p className="text-muted-foreground">Certifications</p>
             </div>
+            <div className="bg-background rounded-lg shadow-sm border p-6">
+              <h2 className="text-2xl font-bold mb-2">{hackerRankBadges.length}</h2>
+              <p className="text-muted-foreground">Coding Badges</p>
+            </div>
           </div>
 
           <Tabs defaultValue="projects" className="w-full">
@@ -82,6 +93,7 @@ export default function AdminDashboardPage() {
               <TabsTrigger value="projects">Projects</TabsTrigger>
               <TabsTrigger value="blog">Blog Posts</TabsTrigger>
               <TabsTrigger value="certifications">Certifications</TabsTrigger>
+              <TabsTrigger value="coding">Coding Profiles</TabsTrigger>
               <TabsTrigger value="profile">Profile</TabsTrigger>
             </TabsList>
             
@@ -223,6 +235,60 @@ export default function AdminDashboardPage() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="coding" className="space-y-6">
+              <h2 className="text-2xl font-bold">Coding Profiles</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-background rounded-lg shadow-sm border p-6 space-y-6">
+                  <h3 className="text-xl font-bold">GitHub & LeetCode</h3>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">GitHub Username</label>
+                      <input
+                        type="text"
+                        className="w-full p-2 border rounded-md"
+                        value={githubUsername}
+                        onChange={(e) => setGithubUsername(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">LeetCode Username</label>
+                      <input
+                        type="text"
+                        className="w-full p-2 border rounded-md"
+                        value={leetCodeUsername}
+                        onChange={(e) => setLeetCodeUsername(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <Button>Save Changes</Button>
+                </div>
+                
+                <div className="bg-background rounded-lg shadow-sm border p-6 space-y-6">
+                  <h3 className="text-xl font-bold">HackerRank Badges</h3>
+                  <div className="space-y-4">
+                    {hackerRankBadges.map((badge, index) => (
+                      <div key={index} className="flex items-center gap-4 border p-3 rounded-md">
+                        <div className="flex-1">
+                          <p className="font-medium">{badge.name}</p>
+                          <div className="flex items-center gap-2">
+                            <span>Level: {badge.level}</span>
+                            <span>Stars: {"★".repeat(badge.stars)}{"☆".repeat(5 - badge.stars)}</span>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm">
+                          Edit
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Badge
+                  </Button>
                 </div>
               </div>
             </TabsContent>

@@ -8,7 +8,7 @@ import SkillsSection from "@/components/sections/SkillsSection";
 import ProjectsSection from "@/components/sections/ProjectsSection";
 import CertificationsSection from "@/components/sections/CertificationsSection";
 import BlogSection from "@/components/sections/BlogSection";
-import CodingProfileSection from "@/components/sections/CodingProfileSection";
+import CodingProfilesSection from "@/components/sections/CodingProfilesSection";
 import ContactSection from "@/components/sections/ContactSection";
 
 const Index = () => {
@@ -21,7 +21,10 @@ const Index = () => {
         <SkillsSection />
         <ProjectsSection limit={6} />
         <CertificationsSection limit={3} />
-        <CodingProfileSection />
+        <CodingProfilesSection
+          githubUsername="janedeveloper"
+          leetCodeUsername="janedeveloper"
+        />
         <BlogSection limit={4} />
         <ContactSection />
       </main>

@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import CodingProfileSection from "@/components/sections/CodingProfileSection";
+import CodingProfilesSection from "@/components/sections/CodingProfilesSection";
 
 export default function CodingProfilePage() {
   return (
@@ -25,7 +25,10 @@ export default function CodingProfilePage() {
           </div>
         </section>
         
-        <CodingProfileSection />
+        <CodingProfilesSection 
+          githubUsername="janedeveloper"
+          leetCodeUsername="janedeveloper"
+        />
       </main>
       <Footer />
     </div>
