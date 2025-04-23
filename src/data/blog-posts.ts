@@ -1,4 +1,3 @@
-
 import { BlogPost } from "@/types";
 
 export const blogPosts: BlogPost[] = [
@@ -6,7 +5,8 @@ export const blogPosts: BlogPost[] = [
     id: "1",
     title: "Building Accessible React Applications",
     slug: "building-accessible-react-applications",
-    description: "A comprehensive guide to creating accessible React applications for all users, including those with disabilities.",
+    description:
+      "A comprehensive guide to creating accessible React applications for all users, including those with disabilities.",
     content: `
 # Building Accessible React Applications
 
@@ -76,7 +76,7 @@ function ExpandableSection({ title, children, isExpanded, onToggle }) {
         hidden={!isExpanded}
       >
         {children}
-      </div>
+      </div> <!-- Ensure this closing tag matches an opening <div> -->
     </div>
   );
 }
@@ -100,13 +100,14 @@ Remember, accessibility is not a feature—it's a necessity.
     coverImage: "/placeholder.svg",
     date: "2023-12-01",
     readTime: 6,
-    tags: ["React", "Accessibility", "Frontend"]
+    tags: ["React", "Accessibility", "Frontend"],
   },
   {
     id: "2",
     title: "Optimizing React Performance with Memo and useCallback",
     slug: "optimizing-react-performance",
-    description: "Learn how to improve your React application's performance using memoization techniques.",
+    description:
+      "Learn how to improve your React application's performance using memoization techniques.",
     content: `
 # Optimizing React Performance with Memo and useCallback
 
@@ -217,13 +218,14 @@ By following these guidelines, you'll create React applications that remain resp
     coverImage: "/placeholder.svg",
     date: "2023-11-15",
     readTime: 8,
-    tags: ["React", "Performance", "JavaScript"]
+    tags: ["React", "Performance", "JavaScript"],
   },
   {
     id: "3",
     title: "Getting Started with Three.js in React",
     slug: "getting-started-with-threejs-in-react",
-    description: "A beginner's guide to implementing 3D graphics in React applications using Three.js and React Three Fiber.",
+    description:
+      "A beginner's guide to implementing 3D graphics in React applications using Three.js and React Three Fiber.",
     content: `
 # Getting Started with Three.js in React
 
@@ -376,13 +378,14 @@ Happy coding in the third dimension!
     coverImage: "/placeholder.svg",
     date: "2023-10-22",
     readTime: 10,
-    tags: ["Three.js", "React", "3D Graphics"]
+    tags: ["Three.js", "React", "3D Graphics"],
   },
   {
     id: "4",
     title: "Building a Design System with Tailwind CSS",
     slug: "design-system-with-tailwind",
-    description: "Learn how to create a consistent and scalable design system for your applications using Tailwind CSS.",
+    description:
+      "Learn how to create a consistent and scalable design system for your applications using Tailwind CSS.",
     content: `
 # Building a Design System with Tailwind CSS
 
@@ -708,16 +711,24 @@ With your design system in place, consuming it in your applications becomes simp
 import { Button } from './design-system/components/Button';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './design-system/components/Card';
 
+interface Product {
+  name: string;
+  description: string;
+  price: number;
+}
+
 function ProductCard({ product }) {
+  product = product || {};
+  
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{product.name}</CardTitle>
+        <CardTitle>{product.name || ''}</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-neutral-600">{product.description}</p>
+        <p className="text-neutral-600">{product.description || ''}</p>
         <div className="mt-4">
-          <span className="text-lg font-bold">${product.price}</span>
+
         </div>
       </CardContent>
       <CardFooter className="flex justify-end">
@@ -737,6 +748,6 @@ Remember that a design system is never "done" - it should evolve along with your
     coverImage: "/placeholder.svg",
     date: "2023-09-18",
     readTime: 12,
-    tags: ["Tailwind CSS", "Design Systems", "Frontend"]
-  }
+    tags: ["Tailwind CSS", "Design Systems", "Frontend"],
+  },
 ];
