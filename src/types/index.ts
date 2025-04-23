@@ -1,4 +1,3 @@
-
 // Core data types for the portfolio
 
 export interface NavItem {
@@ -43,6 +42,7 @@ export interface Project {
   category: 'web' | 'mobile' | 'backend' | 'machine-learning' | 'other';
   featured: boolean;
   date: string;
+  submissionCount?: number; // Adding optional submissionCount property
 }
 
 export interface Certificate {

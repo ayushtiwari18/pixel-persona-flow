@@ -12,7 +12,8 @@ export const projects: Project[] = [
     technologies: ["React", "Node.js", "Express", "MongoDB", "Redux", "Stripe"],
     category: "web",
     featured: true,
-    date: "2023-08-15"
+    date: "2023-08-15",
+    submissionCount: 24
   },
   {
     id: "2",
@@ -24,7 +25,8 @@ export const projects: Project[] = [
     technologies: ["React", "Firebase", "Tailwind CSS", "TypeScript"],
     category: "web",
     featured: true,
-    date: "2023-05-10"
+    date: "2023-05-10",
+    submissionCount: 15
   },
   {
     id: "3",
@@ -35,7 +37,8 @@ export const projects: Project[] = [
     technologies: ["Python", "TensorFlow", "React", "FastAPI"],
     category: "machine-learning",
     featured: true,
-    date: "2023-02-28"
+    date: "2023-02-28",
+    submissionCount: 32
   },
   {
     id: "4",
@@ -46,7 +49,8 @@ export const projects: Project[] = [
     technologies: ["React Native", "Redux", "Node.js", "MongoDB"],
     category: "mobile",
     featured: false,
-    date: "2022-11-05"
+    date: "2022-11-05",
+    submissionCount: 8
   },
   {
     id: "5",
@@ -58,7 +62,8 @@ export const projects: Project[] = [
     technologies: ["JavaScript", "HTML/CSS", "OpenWeatherMap API", "Chart.js"],
     category: "web",
     featured: false,
-    date: "2022-09-20"
+    date: "2022-09-20",
+    submissionCount: 12
   },
   {
     id: "6",
@@ -69,6 +74,7 @@ export const projects: Project[] = [
     technologies: ["Docker", "Kubernetes", "Node.js", "Go", "Redis"],
     category: "backend",
     featured: false,
-    date: "2022-07-12"
+    date: "2022-07-12",
+    submissionCount: 5
   }
 ];
