@@ -85,7 +85,7 @@ function ExpandableSection({ title, children, isExpanded, onToggle }) {
 
 To ensure your React applications are accessible, use these tools:
 
-1. **ESLint plugins**: \`eslint-plugin-jsx-a11y\` can catch many accessibility issues during development.
+1. **ESLint plugins**: \\\`eslint-plugin-jsx-a11y\\\` can catch many accessibility issues during development.
 2. **Lighthouse**: Run accessibility audits in Chrome DevTools.
 3. **axe DevTools**: Browser extension for accessibility testing.
 4. **Screen readers**: Test with screen readers like NVDA, JAWS, or VoiceOver.
