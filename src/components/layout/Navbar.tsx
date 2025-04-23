@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/data/site-config";
 import { Menu, X, Github, Linkedin, Twitter } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const navItems = [
   { title: "Home", href: "/" },
@@ -60,7 +60,6 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu when navigating
   useEffect(() => {
     setIsMenuOpen(false);
   }, [pathname]);
@@ -96,6 +95,8 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
+          <ThemeToggle />
+
           <div className="hidden md:flex items-center gap-3">
             {siteConfig.links.github && (
               <a
@@ -142,7 +143,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Navigation */}
       {isMenuOpen && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
