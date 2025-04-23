@@ -1,3 +1,4 @@
+
 // Core data types for the portfolio
 
 export interface NavItem {
@@ -100,4 +101,5 @@ export interface SiteConfig {
     [key: string]: string | undefined;
   };
   resume: string;
+  formEndpoint?: string; // Added this field to the interface
 }
