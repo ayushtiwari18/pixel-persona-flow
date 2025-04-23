@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState } from "react";
 import { PieChart as PieChartIcon } from "lucide-react";
-import { useSimulatedGithubCalendar } from "./coding-profiles/useSimulatedGithubCalendar";
+import { useSimulatedGithubCalendar, GITHUB_CALENDAR_WEEKS, GITHUB_DAYS_IN_WEEK } from "./coding-profiles/useSimulatedGithubCalendar";
 import GithubProfileBlock from "./coding-profiles/GithubProfileBlock";
 import LeetCodeProfileBlock from "./coding-profiles/LeetCodeProfileBlock";
 import HackerRankBadgesBlock from "./coding-profiles/HackerRankBadgesBlock";
