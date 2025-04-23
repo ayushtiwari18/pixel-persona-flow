@@ -1,0 +1,27 @@
+
+[
+  {
+    "id": "java-foundations",
+    "image": "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&q=80",
+    "title": "Java Foundations",
+    "issuer": "Oracle",
+    "date": "2022-02-28",
+    "link": "https://www.oracle.com/verify/java-foundations"
+  },
+  {
+    "id": "aws-solutions-architect",
+    "image": "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=600&q=80",
+    "title": "AWS Certified Solutions Architect",
+    "issuer": "Amazon Web Services",
+    "date": "2023-04-12",
+    "link": "https://www.aws.training/verify/aws-solutions-architect"
+  },
+  {
+    "id": "frontend-developer-meta",
+    "image": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&q=80",
+    "title": "Meta Frontend Developer",
+    "issuer": "Meta",
+    "date": "2023-05-18",
+    "link": "https://www.coursera.org/verify/meta-frontend"
+  }
+]

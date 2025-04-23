@@ -1,8 +1,10 @@
+
 import HeroSection from "@/components/sections/HeroSection";
 import AboutSection from "@/components/sections/AboutSection";
 import SkillsSection from "@/components/sections/SkillsSection";
 import ProjectsSection from "@/components/sections/ProjectsSection";
-import CertificationsSection from "@/components/sections/CertificationsSection";
+// REMOVE: import CertificationsSection from "@/components/sections/CertificationsSection";
+import CertificationsShowcaseSection from "@/components/sections/CertificationsShowcaseSection";
 import BlogSection from "@/components/sections/BlogSection";
 import CodingProfilesSection from "@/components/sections/CodingProfilesSection";
 import ContactSection from "@/components/sections/ContactSection";
@@ -18,7 +20,7 @@ export default function HomePage() {
         <AboutSection />
         <SkillsSection />
         <ProjectsSection limit={6} />
-        <CertificationsSection limit={3} />
+        <CertificationsShowcaseSection />
         <CodingProfilesSection
           githubUsername="ayushtiwari18"
           leetCodeUsername="_aayush03"
