@@ -3,7 +3,6 @@ import HeroSection from "@/components/sections/HeroSection";
 import AboutSection from "@/components/sections/AboutSection";
 import SkillsSection from "@/components/sections/SkillsSection";
 import ProjectsSection from "@/components/sections/ProjectsSection";
-// REMOVE: import CertificationsSection from "@/components/sections/CertificationsSection";
 import CertificationsShowcaseSection from "@/components/sections/CertificationsShowcaseSection";
 import BlogSection from "@/components/sections/BlogSection";
 import CodingProfilesSection from "@/components/sections/CodingProfilesSection";

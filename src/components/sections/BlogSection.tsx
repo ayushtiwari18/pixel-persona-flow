@@ -4,85 +4,9 @@ import { motion, useInView } from "framer-motion";
 import { Link } from "react-router-dom";
 import { blogPosts } from "@/data/blog-posts";
 import { formatDate } from "@/lib/utils";
-import { Clock, ArrowRight, ArrowUpRight } from "lucide-react";
+import { Clock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-
-const BlogPostCard = ({
-  post,
-  index,
-  featured = false,
-}: {
-  post: typeof blogPosts[0];
-  index: number;
-  featured?: boolean;
-}) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.1 }}
-    >
-      <Card className={`h-full overflow-hidden ${featured ? 'border-primary/50' : ''}`}>
-        {featured && (
-          <div className="relative">
-            <img
-              src={post.coverImage}
-              alt={post.title}
-              className="w-full h-48 object-cover"
-            />
-            <div className="absolute top-4 left-4 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full font-medium">
-              Featured
-            </div>
-          </div>
-        )}
-        <CardContent className={`${featured ? 'p-6' : 'p-5'}`}>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-            <time dateTime={post.date}>{formatDate(post.date)}</time>
-            <span>•</span>
-            <div className="flex items-center">
-              <Clock className="h-3 w-3 mr-1" />
-              <span>{post.readTime} min read</span>
-            </div>
-          </div>
-          <Link to={`/blog/${post.slug}`}>
-            <h3 className={`font-bold hover:text-primary transition-colors ${featured ? 'text-xl mb-3' : 'text-lg mb-2'}`}>
-              {post.title}
-            </h3>
-          </Link>
-          <p className="text-muted-foreground text-sm">
-            {post.description.length > (featured ? 150 : 100)
-              ? `${post.description.slice(0, featured ? 150 : 100)}...`
-              : post.description}
-          </p>
-        </CardContent>
-        <CardFooter className={`flex justify-between items-center ${featured ? 'px-6 pb-6' : 'px-5 pb-5'}`}>
-          <div className="flex flex-wrap gap-2">
-            {post.tags.slice(0, 2).map((tag, i) => (
-              <span
-                key={i}
-                className="text-xs bg-muted px-2 py-1 rounded-full"
-              >
-                {tag}
-              </span>
-            ))}
-            {post.tags.length > 2 && (
-              <span className="text-xs bg-muted px-2 py-1 rounded-full">
-                +{post.tags.length - 2}
-              </span>
-            )}
-          </div>
-          <Link
-            to={`/blog/${post.slug}`}
-            className="text-primary text-sm font-medium inline-flex items-center hover:underline"
-          >
-            Read <ArrowUpRight className="h-3 w-3 ml-1" />
-          </Link>
-        </CardFooter>
-      </Card>
-    </motion.div>
-  );
-};
+import BlogPostCard from "@/components/blog/BlogPostCard";
 
 export default function BlogSection({ limit = 4 }: { limit?: number }) {
   const ref = useRef(null);
@@ -117,13 +41,60 @@ export default function BlogSection({ limit = 4 }: { limit?: number }) {
         <div ref={ref} className="space-y-8">
           {/* Featured Post */}
           {featuredPost && (
-            <BlogPostCard post={featuredPost} index={0} featured={true} />
+            <div className="bg-background border rounded-lg overflow-hidden shadow-sm">
+              <div className="grid grid-cols-1 md:grid-cols-2">
+                <div className="p-8">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+                    <time dateTime={featuredPost.date}>{formatDate(featuredPost.date)}</time>
+                    <span>•</span>
+                    <div className="flex items-center">
+                      <Clock className="h-4 w-4 mr-1" />
+                      <span>{featuredPost.readTime} min read</span>
+                    </div>
+                  </div>
+                  <Link to={`/blog/${featuredPost.slug}`}>
+                    <h3 className="text-2xl font-bold hover:text-primary transition-colors mb-4">
+                      {featuredPost.title}
+                    </h3>
+                  </Link>
+                  <p className="text-muted-foreground mb-5">
+                    {featuredPost.description}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-5">
+                    {featuredPost.tags.map((tag, i) => (
+                      <span
+                        key={i}
+                        className="text-xs bg-muted px-2 py-1 rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <Link
+                    to={`/blog/${featuredPost.slug}`}
+                    className="text-primary font-medium hover:underline"
+                  >
+                    Read more
+                  </Link>
+                </div>
+                <div className="relative h-60 md:h-full bg-muted">
+                  <img
+                    src={featuredPost.coverImage}
+                    alt={featuredPost.title}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  <div className="absolute top-4 left-4 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full font-medium">
+                    Featured
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
 
           {/* Regular Posts */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {remainingPosts.map((post, index) => (
-              <BlogPostCard key={post.id} post={post} index={index + 1} />
+              <BlogPostCard key={post.id} post={post} index={index} />
             ))}
           </div>
 

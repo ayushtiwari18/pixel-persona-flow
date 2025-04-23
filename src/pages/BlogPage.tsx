@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -8,6 +8,7 @@ import { formatDate } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Clock, Search } from "lucide-react";
+import BlogPostCard from "@/components/blog/BlogPostCard";
 
 export default function BlogPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -47,7 +48,7 @@ export default function BlogPage() {
               transition={{ duration: 0.5 }}
               className="mb-12 text-center"
             >
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-4">Blog</h1>
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-4">My Blog</h1>
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
                 Thoughts, insights, and tutorials on web development and design.
               </p>
@@ -74,53 +75,13 @@ export default function BlogPage() {
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-10">
-                    {sortedPosts.map((post) => (
-                      <motion.article
-                        key={post.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                        className="border-b pb-10 last:border-0"
-                      >
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                          <time dateTime={post.date}>{formatDate(post.date)}</time>
-                          <span>•</span>
-                          <div className="flex items-center">
-                            <Clock className="h-4 w-4 mr-1" />
-                            <span>{post.readTime} min read</span>
-                          </div>
-                        </div>
-                        <Link to={`/blog/${post.slug}`}>
-                          <h2 className="text-2xl font-bold hover:text-primary transition-colors mb-3">
-                            {post.title}
-                          </h2>
-                        </Link>
-                        <p className="text-muted-foreground mb-4">
-                          {post.description}
-                        </p>
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {post.tags.map((tag) => (
-                            <button
-                              key={tag}
-                              onClick={() => setSelectedTag(tag === selectedTag ? null : tag)}
-                              className={`text-xs px-3 py-1 rounded-full ${
-                                tag === selectedTag
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-                              }`}
-                            >
-                              {tag}
-                            </button>
-                          ))}
-                        </div>
-                        <Link
-                          to={`/blog/${post.slug}`}
-                          className="text-primary font-medium hover:underline"
-                        >
-                          Read more
-                        </Link>
-                      </motion.article>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                    {sortedPosts.map((post, index) => (
+                      <BlogPostCard 
+                        key={post.id} 
+                        post={post} 
+                        index={index}
+                      />
                     ))}
                   </div>
                 )}

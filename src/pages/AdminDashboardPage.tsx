@@ -3,11 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { toast } from "sonner";
 import { projects } from "@/data/projects";
 import { blogPosts } from "@/data/blog-posts";
 import { certifications } from "@/data/certifications";
 import { Link } from "react-router-dom";
-import { Home, LogOut, Plus, Code } from "lucide-react";
+import { Home, LogOut, Plus, Trash, Edit } from "lucide-react";
+import BlogPostEditor from "@/components/admin/BlogPostEditor";
+import { BlogPost } from "@/types";
 
 export default function AdminDashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -21,6 +25,10 @@ export default function AdminDashboardPage() {
     { name: "Python", level: 4, stars: 4, colorClass: "bg-blue-100 text-blue-800" },
     { name: "SQL", level: 3, stars: 3, colorClass: "bg-purple-100 text-purple-800" },
   ]);
+  
+  const [isAddingBlog, setIsAddingBlog] = useState(false);
+  const [isEditingBlog, setIsEditingBlog] = useState(false);
+  const [currentBlog, setCurrentBlog] = useState<BlogPost | undefined>(undefined);
 
   useEffect(() => {
     const authStatus = localStorage.getItem("isAuthenticated");
@@ -34,6 +42,30 @@ export default function AdminDashboardPage() {
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
     navigate("/admin");
+  };
+
+  const handleAddBlog = () => {
+    setCurrentBlog(undefined);
+    setIsAddingBlog(true);
+  };
+
+  const handleEditBlog = (blog: BlogPost) => {
+    setCurrentBlog(blog);
+    setIsEditingBlog(true);
+  };
+
+  const handleSaveBlog = (blog: BlogPost) => {
+    toast.success(`Blog "${blog.title}" saved successfully!`, {
+      description: "In a real app, this would be saved to a database or file.",
+    });
+    setIsAddingBlog(false);
+    setIsEditingBlog(false);
+  };
+
+  const handleDeleteBlog = (blog: BlogPost) => {
+    toast.success(`Blog "${blog.title}" deleted successfully!`, {
+      description: "In a real app, this would be deleted from a database or file.",
+    });
   };
 
   if (!isAuthenticated) {
@@ -145,7 +177,7 @@ export default function AdminDashboardPage() {
             <TabsContent value="blog" className="space-y-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold">Blog Posts</h2>
-                <Button>
+                <Button onClick={handleAddBlog}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add Post
                 </Button>
@@ -180,10 +212,12 @@ export default function AdminDashboardPage() {
                           </td>
                           <td className="p-4">
                             <div className="flex gap-2">
-                              <Button variant="outline" size="sm">
+                              <Button variant="outline" size="sm" onClick={() => handleEditBlog(post)}>
+                                <Edit className="h-4 w-4 mr-2" />
                                 Edit
                               </Button>
-                              <Button variant="destructive" size="sm">
+                              <Button variant="destructive" size="sm" onClick={() => handleDeleteBlog(post)}>
+                                <Trash className="h-4 w-4 mr-2" />
                                 Delete
                               </Button>
                             </div>
@@ -374,6 +408,27 @@ export default function AdminDashboardPage() {
           </Tabs>
         </motion.div>
       </main>
+
+      <Dialog open={isAddingBlog || isEditingBlog} onOpenChange={() => {
+        setIsAddingBlog(false);
+        setIsEditingBlog(false);
+      }}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {isAddingBlog ? 'Add New Blog Post' : 'Edit Blog Post'}
+            </DialogTitle>
+          </DialogHeader>
+          <BlogPostEditor 
+            post={currentBlog}
+            onSave={handleSaveBlog}
+            onCancel={() => {
+              setIsAddingBlog(false);
+              setIsEditingBlog(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
