@@ -22,6 +22,7 @@ import AdminCertificationsPage from "./pages/admin/AdminCertificationsPage";
 import AdminCodingProfilesPage from "./pages/admin/AdminCodingProfilesPage";
 import AdminProfilePage from "./pages/admin/AdminProfilePage";
 import NotFound from "./pages/NotFound";
+import HackathonsPage from "./pages/HackathonsPage";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/certifications" element={<CertificationsPage />} />
             <Route path="/coding-profile" element={<CodingProfilePage />} />
+            <Route path="/hackathons" element={<HackathonsPage />} />
             <Route path="/admin" element={<AdminLoginPage />} />
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
             <Route path="/admin/projects" element={<AdminProjectsPage />} />
