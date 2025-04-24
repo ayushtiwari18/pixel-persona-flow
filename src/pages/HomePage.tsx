@@ -7,6 +7,7 @@ import CertificationsSection from "@/components/sections/CertificationsSection";
 import BlogSection from "@/components/sections/BlogSection";
 import CodingProfilesSection from "@/components/sections/CodingProfilesSection";
 import ContactSection from "@/components/sections/ContactSection";
+import HackathonsPreview from "@/components/sections/HackathonsPreview";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
@@ -19,6 +20,7 @@ export default function HomePage() {
         <AboutSection />
         <SkillsSection />
         <ProjectsSection limit={6} />
+        <HackathonsPreview limit={2} />
         <CertificationsSection limit={3} />
         <CodingProfilesSection
           githubUsername="ayushtiwari18"
