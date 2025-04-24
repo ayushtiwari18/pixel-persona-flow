@@ -271,7 +271,7 @@ function HeroCanvas() {
 export default function HeroSection() {
   const canvasRef = useRef();
   const [profileImage, setProfileImage] = useState(
-    "/path/to/your/profile-image.jpg"
+    "20241226_190337.jpg"
   );
 
   // Handle resize for canvas
