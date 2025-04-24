@@ -1,27 +1,91 @@
 
 [
   {
-    "id": "java-foundations",
-    "image": "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&q=80",
-    "title": "Java Foundations",
-    "issuer": "Oracle",
-    "date": "2022-02-28",
-    "link": "https://www.oracle.com/verify/java-foundations"
+    "id": "fullstack-apna",
+    "image": "https://images.unsplash.com/photo-1508780709619-79562169bc64?w=600&q=80",
+    "title": "Full Stack Web Development",
+    "issuer": "Apna College",
+    "date": "2024-05-10",
+    "link": "#"
   },
   {
-    "id": "aws-solutions-architect",
-    "image": "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=600&q=80",
-    "title": "AWS Certified Solutions Architect",
-    "issuer": "Amazon Web Services",
-    "date": "2023-04-12",
-    "link": "https://www.aws.training/verify/aws-solutions-architect"
+    "id": "python-essentials",
+    "image": "https://images.unsplash.com/photo-1581091870620-d3e0e6cfb43b?w=600&q=80",
+    "title": "Python Essentials 1",
+    "issuer": "Cisco Networking Academy",
+    "date": "2024-09-01",
+    "link": "#"
   },
   {
-    "id": "frontend-developer-meta",
-    "image": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&q=80",
-    "title": "Meta Frontend Developer",
-    "issuer": "Meta",
-    "date": "2023-05-18",
-    "link": "https://www.coursera.org/verify/meta-frontend"
+    "id": "db-design-oracle",
+    "image": "https://images.unsplash.com/photo-1556157382-97eda2d62296?w=600&q=80",
+    "title": "Database Design",
+    "issuer": "Oracle Academy",
+    "date": "2024-11-18",
+    "link": "#"
+  },
+  {
+    "id": "plsql-semesters",
+    "image": "https://images.unsplash.com/photo-1573497019440-cd4a3e5dfd3e?w=600&q=80",
+    "title": "PL/SQL Programming (Sem 1 & 2)",
+    "issuer": "Oracle Academy",
+    "date": "2024-11-17",
+    "link": "#"
+  },
+  {
+    "id": "java-fundamentals",
+    "image": "https://images.unsplash.com/photo-1537432376769-00a0026c1ed6?w=600&q=80",
+    "title": "Java Fundamentals",
+    "issuer": "Oracle Academy",
+    "date": "2024-11-19",
+    "link": "#"
+  },
+  {
+    "id": "github-career-essentials",
+    "image": "https://images.unsplash.com/photo-1587825140708-8d8c24c67d1e?w=600&q=80",
+    "title": "Career Essentials in GitHub Professional",
+    "issuer": "Microsoft & LinkedIn Learning",
+    "date": "2024-06-12",
+    "link": "#"
+  },
+  {
+    "id": "alibaba-cloud-dev",
+    "image": "https://images.unsplash.com/photo-1507679622673-989605832e3d?w=600&q=80",
+    "title": "Alibaba Cloud Developer",
+    "issuer": "Alibaba Group",
+    "date": "2023-12-01",
+    "link": "#"
+  },
+  {
+    "id": "intro-packet-tracer",
+    "image": "https://images.unsplash.com/photo-1581090700227-7c92a9c7e8b2?w=600&q=80",
+    "title": "Introduction to Packet Tracer",
+    "issuer": "Cisco Networking Academy",
+    "date": "2024-03-01",
+    "link": "#"
+  },
+  {
+    "id": "cloud-security",
+    "image": "https://images.unsplash.com/photo-1605902711622-cfb43c4437d5?w=600&q=80",
+    "title": "Cloud Security Alliance",
+    "issuer": "Cisco Networking Academy",
+    "date": "2024-02-01",
+    "link": "#"
+  },
+  {
+    "id": "dsa-java-apna",
+    "image": "https://images.unsplash.com/photo-1517430816045-df4b7de1d43f?w=600&q=80",
+    "title": "DSA with Java",
+    "issuer": "Apna College",
+    "date": "2023-12-01",
+    "link": "#"
+  },
+  {
+    "id": "cpp-essentials",
+    "image": "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=600&q=80",
+    "title": "C++ Essentials",
+    "issuer": "Cisco Networking Academy",
+    "date": "2023-08-01",
+    "link": "#"
   }
 ]
