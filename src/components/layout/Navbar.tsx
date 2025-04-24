@@ -3,8 +3,10 @@ import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/data/site-config";
-import { Menu, X, Github, Linkedin, Twitter } from "lucide-react";
+import { Menu, X, Github, Linkedin, Twitter, LogIn } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
+import { Button } from "@/components/ui/button";
 
 const navItems = [
   { title: "Home", href: "/" },
@@ -49,6 +51,7 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { pathname } = useLocation();
+  const { user, signOut, isAdmin } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -98,6 +101,33 @@ export default function Navbar() {
           <ThemeToggle />
 
           <div className="hidden md:flex items-center gap-3">
+            {user ? (
+              <>
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Admin Panel
+                  </Link>
+                )}
+                <Button
+                  variant="ghost"
+                  onClick={() => signOut()}
+                  className="text-sm font-medium"
+                >
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <Link to="/auth">
+                <Button variant="secondary" size="sm">
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Sign In
+                </Button>
+              </Link>
+            )}
+
             {siteConfig.links.github && (
               <a
                 href={siteConfig.links.github}
