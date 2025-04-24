@@ -1,12 +1,15 @@
+
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/data/site-config";
-import { Menu, X, Github, Linkedin, Twitter, LogIn } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { Menu, X } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
-import { Button } from "@/components/ui/button";
+import { NavbarLink } from "./navbar/NavbarLink";
+import { MobileMenu } from "./navbar/MobileMenu";
+import { UserMenu } from "./navbar/UserMenu";
+import { SocialLinks } from "./navbar/SocialLinks";
 
 const navItems = [
   { title: "Home", href: "/" },
@@ -16,42 +19,10 @@ const navItems = [
   { title: "Contact", href: "/contact" }
 ];
 
-const NavbarLink = ({ 
-  href, 
-  children, 
-  isActive 
-}: { 
-  href: string; 
-  children: React.ReactNode; 
-  isActive: boolean;
-}) => {
-  return (
-    <Link
-      to={href}
-      className={cn(
-        "relative px-3 py-2 text-sm font-medium transition-colors",
-        isActive 
-          ? "text-primary" 
-          : "text-muted-foreground hover:text-foreground"
-      )}
-    >
-      {children}
-      {isActive && (
-        <motion.div
-          className="absolute bottom-0 left-0 h-0.5 w-full bg-primary"
-          layoutId="navbar-indicator"
-          transition={{ type: "spring", bounce: 0.25, duration: 0.5 }}
-        />
-      )}
-    </Link>
-  );
-};
-
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { pathname } = useLocation();
-  const { user, signOut, isAdmin } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -99,66 +70,8 @@ export default function Navbar() {
 
         <div className="flex items-center gap-4">
           <ThemeToggle />
-
-          <div className="hidden md:flex items-center gap-3">
-            {user ? (
-              <>
-                {isAdmin && (
-                  <Link
-                    to="/admin"
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    Admin Panel
-                  </Link>
-                )}
-                <Button
-                  variant="ghost"
-                  onClick={() => signOut()}
-                  className="text-sm font-medium"
-                >
-                  Sign Out
-                </Button>
-              </>
-            ) : (
-              <Link to="/auth">
-                <Button variant="secondary" size="sm">
-                  <LogIn className="h-4 w-4 mr-2" />
-                  Sign In
-                </Button>
-              </Link>
-            )}
-
-            {siteConfig.links.github && (
-              <a
-                href={siteConfig.links.github}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                <Github className="h-5 w-5" />
-              </a>
-            )}
-            {siteConfig.links.linkedin && (
-              <a
-                href={siteConfig.links.linkedin}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                <Linkedin className="h-5 w-5" />
-              </a>
-            )}
-            {siteConfig.links.twitter && (
-              <a
-                href={siteConfig.links.twitter}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                <Twitter className="h-5 w-5" />
-              </a>
-            )}
-          </div>
+          <UserMenu />
+          <SocialLinks />
           <button
             className="flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground md:hidden"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -173,67 +86,12 @@ export default function Navbar() {
         </div>
       </div>
 
-      {isMenuOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.2 }}
-          className="md:hidden"
-        >
-          <div className="container bg-background pb-6 pt-2">
-            <nav className="flex flex-col gap-4">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  className={cn(
-                    "px-4 py-2 text-base font-medium transition-colors",
-                    pathname === item.href
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.title}
-                </Link>
-              ))}
-            </nav>
-            <div className="mt-6 flex items-center justify-center gap-4">
-              {siteConfig.links.github && (
-                <a
-                  href={siteConfig.links.github}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  <Github className="h-5 w-5" />
-                </a>
-              )}
-              {siteConfig.links.linkedin && (
-                <a
-                  href={siteConfig.links.linkedin}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  <Linkedin className="h-5 w-5" />
-                </a>
-              )}
-              {siteConfig.links.twitter && (
-                <a
-                  href={siteConfig.links.twitter}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  <Twitter className="h-5 w-5" />
-                </a>
-              )}
-            </div>
-          </div>
-        </motion.div>
-      )}
+      <MobileMenu
+        isOpen={isMenuOpen}
+        navItems={navItems}
+        currentPath={pathname}
+        onClose={() => setIsMenuOpen(false)}
+      />
     </motion.header>
   );
 }
