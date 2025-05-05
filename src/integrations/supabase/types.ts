@@ -153,6 +153,48 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_settings: {
+        Row: {
+          created_at: string | null
+          description: string
+          form_endpoint: string | null
+          github_url: string | null
+          id: string
+          linkedin_url: string | null
+          name: string
+          resume_url: string | null
+          title: string
+          twitter_url: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          form_endpoint?: string | null
+          github_url?: string | null
+          id?: string
+          linkedin_url?: string | null
+          name: string
+          resume_url?: string | null
+          title: string
+          twitter_url?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          form_endpoint?: string | null
+          github_url?: string | null
+          id?: string
+          linkedin_url?: string | null
+          name?: string
+          resume_url?: string | null
+          title?: string
+          twitter_url?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

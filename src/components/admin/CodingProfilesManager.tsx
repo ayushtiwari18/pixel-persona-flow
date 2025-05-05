@@ -235,7 +235,7 @@ export default function CodingProfilesManager() {
     }
   }, [profileData]);
 
-  // Initialize badges when they're loaded
+  // Initialize badges when they're loaded - Fix here for the colorClass mapping
   useEffect(() => {
     if (badgesData) {
       setProfilesData(prev => ({
@@ -322,8 +322,15 @@ export default function CodingProfilesManager() {
     toast.info("Enter badge details and save to create");
   };
 
-  const handleEditBadge = (badge: HackerRankBadge) => {
-    setEditingBadge({...badge});
+  const handleEditBadge = (badge: any) => {
+    // Make sure we map from DB field names to our component's expected property names
+    setEditingBadge({
+      id: badge.id,
+      name: badge.name,
+      level: badge.level,
+      stars: badge.stars,
+      colorClass: badge.color_class || badge.colorClass // Support both formats
+    });
   };
 
   const handleUpdateBadge = async () => {
