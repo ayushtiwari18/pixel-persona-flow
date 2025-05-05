@@ -84,12 +84,18 @@ export default function ProfileManager() {
         
         if (error) throw error;
       } else {
+        // For a new record, ensure all required fields are included
+        const completeData = {
+          name,
+          title,
+          description,
+          ...data
+        };
+        
         // Insert new record
         const { error } = await supabase
           .from('profile_settings')
-          .insert({
-            ...data
-          });
+          .insert(completeData);
         
         if (error) throw error;
       }
