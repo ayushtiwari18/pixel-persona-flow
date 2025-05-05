@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,7 +11,7 @@ export default function DashboardOverview() {
   const [stats, setStats] = useState({
     projects: 0,
     blogPosts: blogPosts.length,
-    certifications: certifications.length,
+    certifications: 0,
     featuredProjects: 0,
     hackathons: 0,
   });
@@ -50,6 +49,26 @@ export default function DashboardOverview() {
           total: projects.length,
           featured: projects.filter(p => p.featured).length
         };
+      }
+    }
+  });
+
+  // Fetch certifications count from Supabase
+  const { data: certificationsCount, isLoading: isLoadingCertifications } = useQuery({
+    queryKey: ['certifications-count'],
+    queryFn: async () => {
+      try {
+        const { count, error } = await supabase
+          .from('certifications')
+          .select('*', { count: 'exact', head: true });
+        
+        if (error) throw error;
+        
+        return count || 0;
+      } catch (error) {
+        console.error("Error fetching certifications count:", error);
+        toast.error("Failed to fetch certifications count");
+        return 0;
       }
     }
   });
@@ -134,6 +153,15 @@ export default function DashboardOverview() {
   }, [projectsData]);
 
   useEffect(() => {
+    if (certificationsCount !== undefined) {
+      setStats(prev => ({
+        ...prev,
+        certifications: certificationsCount
+      }));
+    }
+  }, [certificationsCount]);
+
+  useEffect(() => {
     if (hackathonsData !== undefined) {
       setStats(prev => ({
         ...prev,
@@ -164,7 +192,7 @@ export default function DashboardOverview() {
         </div>
         
         <div className="bg-background rounded-lg shadow-sm border p-6">
-          <h2 className="text-2xl font-bold mb-2">{stats.certifications}</h2>
+          <h2 className="text-2xl font-bold mb-2">{isLoadingCertifications ? <Loader2 className="h-6 w-6 animate-spin" /> : stats.certifications}</h2>
           <p className="text-muted-foreground">Certifications</p>
         </div>
         

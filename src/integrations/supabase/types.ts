@@ -27,6 +27,36 @@ export type Database = {
         }
         Relationships: []
       }
+      certifications: {
+        Row: {
+          date: string
+          description: string | null
+          id: string
+          image: string | null
+          issuer: string
+          title: string
+          url: string | null
+        }
+        Insert: {
+          date: string
+          description?: string | null
+          id?: string
+          image?: string | null
+          issuer: string
+          title: string
+          url?: string | null
+        }
+        Update: {
+          date?: string
+          description?: string | null
+          id?: string
+          image?: string | null
+          issuer?: string
+          title?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
       hackathons: {
         Row: {
           date: string

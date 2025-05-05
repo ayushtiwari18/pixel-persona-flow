@@ -1,14 +1,15 @@
+
 import React, { useRef, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { certifications } from "@/data/certifications";
+import { certifications as defaultCertifications } from "@/data/certifications";
 import { formatDate } from "@/lib/utils";
 import { ExternalLink, Calendar, X, Award, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-type Certification = (typeof certifications)[0] & {
-  skills?: string[];
-};
+import { Certificate } from "@/types";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 function useOutsideClick(ref, callback) {
   React.useEffect(() => {
@@ -30,7 +31,7 @@ const CertificationCard = ({
   index,
   onClick,
 }: {
-  certification: Certification;
+  certification: Certificate;
   index: number;
   onClick: () => void;
 }) => {
@@ -84,7 +85,7 @@ const CertificationPopup = ({
   certification,
   onClose,
 }: {
-  certification: Certification;
+  certification: Certificate;
   onClose: () => void;
 }) => {
   const popupRef = useRef(null);
@@ -169,22 +170,6 @@ const CertificationPopup = ({
             </div>
           )}
 
-          {certification.skills && certification.skills.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-lg font-medium mb-2">Skills</h3>
-              <div className="flex flex-wrap gap-2">
-                {certification.skills.map((skill, index) => (
-                  <span
-                    key={index}
-                    className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
           {certification.url && (
             <div className="mt-auto pt-4 border-t border-border">
               <a
@@ -206,15 +191,52 @@ const CertificationPopup = ({
 
 export default function CertificationsSection({
   limit = 3,
+  certifications,
 }: {
   limit?: number;
+  certifications?: Certificate[];
 }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
-  const [selectedCert, setSelectedCert] = useState<Certification | null>(null);
+  const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
+
+  // Fetch certifications from Supabase if not provided via props
+  const { data: fetchedCertifications } = useQuery({
+    queryKey: ['certifications'],
+    queryFn: async () => {
+      if (certifications) return certifications;
+      
+      const { data, error } = await supabase
+        .from('certifications')
+        .select('*')
+        .order('date', { ascending: false });
+      
+      if (error) {
+        console.error("Error fetching certifications:", error);
+        toast.error("Failed to load certifications");
+        // Fallback to local data if Supabase query fails
+        return defaultCertifications;
+      }
+      
+      // Map Supabase data to our Certificate type
+      return data.map(cert => ({
+        id: cert.id,
+        title: cert.title,
+        issuer: cert.issuer,
+        date: cert.date,
+        url: cert.url || undefined,
+        image: cert.image || undefined,
+        description: cert.description || undefined
+      }));
+    },
+    enabled: !certifications // Only run query if certifications not provided via props
+  });
+
+  // Use provided certifications or fetched ones
+  const displayCertifications = certifications || fetchedCertifications || defaultCertifications;
 
   // Sort certifications by date (newest first)
-  const sortedCertifications = [...certifications].sort(
+  const sortedCertifications = [...displayCertifications].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
@@ -256,7 +278,7 @@ export default function CertificationsSection({
         </div>
 
         {/* View All Button */}
-        {limit && certifications.length > limit && (
+        {limit && displayCertifications.length > limit && (
           <div className="mt-12 text-center">
             <Button size="lg" variant="outline" asChild>
               <Link to="/certifications">View All Certifications</Link>
