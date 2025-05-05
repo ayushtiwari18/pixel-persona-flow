@@ -27,6 +27,36 @@ export type Database = {
         }
         Relationships: []
       }
+      hackathons: {
+        Row: {
+          date: string
+          id: string
+          image: string | null
+          learnings: string[]
+          name: string
+          result: string
+          role: string
+        }
+        Insert: {
+          date: string
+          id?: string
+          image?: string | null
+          learnings?: string[]
+          name: string
+          result: string
+          role: string
+        }
+        Update: {
+          date?: string
+          id?: string
+          image?: string | null
+          learnings?: string[]
+          name?: string
+          result?: string
+          role?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

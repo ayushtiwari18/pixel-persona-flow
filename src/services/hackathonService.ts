@@ -6,10 +6,10 @@ import { SupabaseHackathon, mapSupabaseToLocalHackathon, LocalHackathon } from "
 // Fetch hackathons from Supabase
 export const fetchHackathons = async (): Promise<LocalHackathon[]> => {
   try {
-    // Check if table exists by attempting to query it
+    // Query the hackathons table that we've created
     const { data, error } = await supabase
       .from('hackathons')
-      .select('*');
+      .select('*') as { data: SupabaseHackathon[] | null, error: any };
 
     // If there's an error or no data, return local hackathons
     if (error || !data || data.length === 0) {
@@ -18,7 +18,7 @@ export const fetchHackathons = async (): Promise<LocalHackathon[]> => {
     }
 
     // If we have data, map it to our local format
-    return data.map(hackathon => mapSupabaseToLocalHackathon(hackathon as SupabaseHackathon));
+    return data.map(hackathon => mapSupabaseToLocalHackathon(hackathon));
   } catch (error) {
     console.error("Error fetching hackathons:", error);
     return hackathons; // Fallback to local data
@@ -28,12 +28,12 @@ export const fetchHackathons = async (): Promise<LocalHackathon[]> => {
 // Fetch a limited number of hackathons for preview
 export const fetchHackathonsPreview = async (limit: number): Promise<LocalHackathon[]> => {
   try {
-    // Check if table exists by attempting to query it
+    // Query the hackathons table with limit
     const { data, error } = await supabase
       .from('hackathons')
       .select('*')
       .order('date', { ascending: false })
-      .limit(limit);
+      .limit(limit) as { data: SupabaseHackathon[] | null, error: any };
 
     // If there's an error or no data, return local hackathons
     if (error || !data || data.length === 0) {
@@ -42,7 +42,7 @@ export const fetchHackathonsPreview = async (limit: number): Promise<LocalHackat
     }
 
     // If we have data, map it to our local format
-    return data.map(hackathon => mapSupabaseToLocalHackathon(hackathon as SupabaseHackathon));
+    return data.map(hackathon => mapSupabaseToLocalHackathon(hackathon));
   } catch (error) {
     console.error("Error fetching hackathon preview:", error);
     return hackathons.slice(0, limit); // Fallback to local data
