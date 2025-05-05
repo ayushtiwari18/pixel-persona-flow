@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -12,7 +11,7 @@ import { ArrowLeft, Github, ExternalLink } from "lucide-react";
 
 export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const [project, setProject] = useState<typeof projects[0] | null>(null);
+  const [project, setProject] = useState<(typeof projects)[0] | null>(null);
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
@@ -105,7 +104,12 @@ export default function ProjectDetailPage() {
                 <div className="mt-8 flex flex-wrap gap-4">
                   {project.githubUrl && (
                     <ButtonOutline asChild>
-                      <a href={project.githubUrl} target="_blank" rel="noreferrer" className="inline-flex items-center">
+                      <a
+                        href={project.githubUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center"
+                      >
                         <Github className="h-4 w-4 mr-2" />
                         GitHub Repository
                       </a>
@@ -113,7 +117,12 @@ export default function ProjectDetailPage() {
                   )}
                   {project.demoUrl && (
                     <Button asChild>
-                      <a href={project.demoUrl} target="_blank" rel="noreferrer" className="inline-flex items-center">
+                      <a
+                        href={project.demoUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center"
+                      >
                         <ExternalLink className="h-4 w-4 mr-2" />
                         Live Demo
                       </a>
@@ -178,12 +187,15 @@ export default function ProjectDetailPage() {
                 </div>
 
                 <div>
-                  <h2 className="text-xl font-bold mb-3">Challenges & Solutions</h2>
+                  <h2 className="text-xl font-bold mb-3">
+                    Challenges & Solutions
+                  </h2>
                   <p className="text-muted-foreground">
-                    During development, we encountered challenges with performance
-                    optimization and complex state management. These were solved by
-                    implementing efficient data fetching strategies and adopting a
-                    well-structured state management approach using modern React patterns.
+                    During development, we encountered challenges with
+                    performance optimization and complex state management. These
+                    were solved by implementing efficient data fetching
+                    strategies and adopting a well-structured state management
+                    approach using modern React patterns.
                   </p>
                 </div>
               </div>

@@ -32,6 +32,7 @@ export default function ProjectsPage() {
         title: project.title,
         description: project.description,
         image: project.image,
+        
         demoUrl: project.demourl || undefined,
         githubUrl: project.githuburl || undefined,
         technologies: project.technologies || [],

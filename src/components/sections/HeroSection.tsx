@@ -1,290 +1,470 @@
-import { useEffect, useRef, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { siteConfig } from "@/data/site-config";
-import { Button } from "@/components/ui/button";
-import { ButtonOutline } from "@/components/ui/button-outline";
-import { useThree, Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, PerspectiveCamera, Text } from "@react-three/drei";
 import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 
-// Enhanced particle field with glow and wave effects
-function ParticlesField({ count = 1800 }) {
-  const mesh = useRef<THREE.Points>(null);
-  const particlesMaterial = useRef<THREE.PointsMaterial | null>(null);
+export default function SolarSystemHero() {
+  const mountRef = useRef(null);
+  const sceneRef = useRef(null);
+  const rendererRef = useRef(null);
+  const cameraRef = useRef(null);
+  const controlsRef = useRef(null);
+  const composerRef = useRef(null);
+  const animationIdRef = useRef(null);
+  const planetsRef = useRef([]);
+  const orbitPathsRef = useRef([]);
+  const timeRef = useRef(0);
+  const starsRef = useRef(null);
+  const asteroidBeltRef = useRef(null);
 
-  const particles = useMemo(() => {
-    const temp = [];
-    const sphereRadius = 3.0;
+  // UI States
+  const [showOrbits, setShowOrbits] = useState(true);
+  const [autoRotate, setAutoRotate] = useState(true);
+  const [profileImage, setProfileImage] = useState("/api/placeholder/300/300");
 
-    // Create particles in a more interesting pattern - double sphere with connection trails
-    for (let i = 0; i < count * 0.6; i++) {
-      // Main sphere distribution
-      const radius = sphereRadius * Math.pow(Math.random(), 0.5); // More concentration towards outer shell
-      const theta = 2 * Math.PI * Math.random();
-      const phi = Math.acos(2 * Math.random() - 1);
+  // Initialize Three.js scene
+  useEffect(() => {
+    if (!mountRef.current) return;
 
-      const x = radius * Math.sin(phi) * Math.cos(theta);
-      const y = radius * Math.sin(phi) * Math.sin(theta);
-      const z = radius * Math.cos(phi);
+    // Scene setup
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+    sceneRef.current = scene;
 
-      temp.push({ x, y, z, size: 0.03 + Math.random() * 0.05 });
-    }
+    // Camera
+    const camera = new THREE.PerspectiveCamera(
+      75,
+      mountRef.current.clientWidth / mountRef.current.clientHeight,
+      0.1,
+      10000
+    );
+    camera.position.set(0, 200, 500);
+    cameraRef.current = camera;
 
-    // Create a secondary cluster
-    for (let i = 0; i < count * 0.4; i++) {
-      const smallRadius = 1.2;
-      const theta = 2 * Math.PI * Math.random();
-      const phi = Math.acos(2 * Math.random() - 1);
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true,
+    });
+    renderer.setSize(
+      mountRef.current.clientWidth,
+      mountRef.current.clientHeight
+    );
+    renderer.setPixelRatio(window.devicePixelRatio);
+    mountRef.current.appendChild(renderer.domElement);
+    rendererRef.current = renderer;
 
-      const x = smallRadius * Math.sin(phi) * Math.cos(theta);
-      const y = smallRadius * Math.sin(phi) * Math.sin(theta) + 0.5; // Offset slightly
-      const z = smallRadius * Math.cos(phi) - 1.0; // Position in front
-
-      temp.push({ x, y, z, size: 0.02 + Math.random() * 0.04 });
-    }
-
-    return temp;
-  }, [count]);
-
-  // Generate particle sizes
-  const sizes = useMemo(() => {
-    return new Float32Array(particles.map((p) => p.size));
-  }, [particles]);
-
-  // Animation with time
-  useFrame(({ clock }) => {
-    if (mesh.current) {
-      const t = clock.getElapsedTime();
-
-      // Complex rotation pattern
-      mesh.current.rotation.x = Math.sin(t * 0.15) * 0.2;
-      mesh.current.rotation.y = Math.cos(t * 0.1) * 0.3;
-      mesh.current.rotation.z = Math.sin(t * 0.05) * 0.1;
-
-      // Wave-like pulsation through the particles
-      if (particlesMaterial.current) {
-        // Animate color between indigo and purple
-        const r = 0.31 + Math.sin(t * 0.5) * 0.05;
-        const g = 0.27 + Math.sin(t * 0.5) * 0.05;
-        const b = 0.9 + Math.sin(t * 0.5) * 0.1;
-        particlesMaterial.current.color = new THREE.Color(r, g, b);
-
-        // Animate size and opacity
-        particlesMaterial.current.size = 0.05 * (1 + 0.2 * Math.sin(t * 0.8));
-        particlesMaterial.current.opacity = 0.7 + 0.3 * Math.sin(t * 0.5);
-      }
-    }
-  });
-
-  return (
-    <points ref={mesh}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={particles.length}
-          array={new Float32Array(particles.flatMap((p) => [p.x, p.y, p.z]))}
-          itemSize={3}
-        />
-        <bufferAttribute
-          attach="attributes-size"
-          count={sizes.length}
-          array={sizes}
-          itemSize={1}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        ref={particlesMaterial}
-        size={0.05}
-        color="#4f46e5"
-        transparent
-        opacity={0.7}
-        sizeAttenuation
-        depthWrite={false}
-        blending={THREE.AdditiveBlending}
-      />
-    </points>
-  );
-}
-
-// Simplified glowing orbs that float around
-function GlowingOrbs() {
-  // Predefined positions and properties to avoid runtime errors with random values
-  const orbConfigs = useMemo(
-    () => [
-      {
-        position: [2, 1, -1],
-        scale: 0.15,
-        speed: 0.3,
-        phase: 0,
-        color: "#6366f1",
-      },
-      {
-        position: [-2, -1, 1],
-        scale: 0.2,
-        speed: 0.5,
-        phase: 2,
-        color: "#818cf8",
-      },
-      {
-        position: [1, -2, 0],
-        scale: 0.12,
-        speed: 0.4,
-        phase: 4,
-        color: "#4f46e5",
-      },
-      {
-        position: [-1, 2, 1],
-        scale: 0.18,
-        speed: 0.25,
-        phase: 1,
-        color: "#a5b4fc",
-      },
-      {
-        position: [0, 1.5, -1.5],
-        scale: 0.14,
-        speed: 0.35,
-        phase: 3,
-        color: "#4338ca",
-      },
-    ],
-    []
-  );
-
-  return (
-    <group>
-      {orbConfigs.map((orb, i) => (
-        <Orb
-          key={i}
-          position={orb.position}
-          scale={orb.scale}
-          speed={orb.speed}
-          phase={orb.phase}
-          color={orb.color}
-        />
-      ))}
-    </group>
-  );
-}
-
-function Orb({ position, scale, speed, phase, color }) {
-  const mesh = useRef<THREE.Mesh>(null);
-
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime();
-    if (mesh.current) {
-      // Simplified orbital motion
-      mesh.current.position.x = position[0] + Math.sin(t * speed + phase) * 1.5;
-      mesh.current.position.y = position[1] + Math.cos(t * speed + phase) * 1.5;
-
-      // Pulse size
-      const pulseFactor = 1 + 0.2 * Math.sin(t * 2 + phase);
-      mesh.current.scale.set(
-        scale * pulseFactor,
-        scale * pulseFactor,
-        scale * pulseFactor
-      );
-    }
-  });
-
-  return (
-    <mesh ref={mesh} position={position}>
-      <sphereGeometry args={[1, 16, 16]} />
-      <meshBasicMaterial color={color} transparent opacity={0.7} />
-    </mesh>
-  );
-}
-
-// Simplified ring effect that's more reliable
-function GlowingRing() {
-  const ringRef = useRef<THREE.Object3D>(null);
-  const geometry = useMemo(() => {
-    // Create a circular ring
-    const curve = new THREE.EllipseCurve(
-      0,
-      0, // center
-      2.5,
-      2.5, // x radius, y radius
-      0,
-      Math.PI * 2, // start angle, end angle
-      false, // clockwise
-      0 // rotation
+    // Post-processing for glow effects
+    const renderScene = new RenderPass(scene, camera);
+    const bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(
+        mountRef.current.clientWidth,
+        mountRef.current.clientHeight
+      ),
+      1.5, // strength
+      0.4, // radius
+      0.85 // threshold
     );
 
-    // Get points from the curve
-    const points = curve.getPoints(50);
-    return new THREE.BufferGeometry().setFromPoints(points);
-  }, []);
+    const composer = new EffectComposer(renderer);
+    composer.addPass(renderScene);
+    composer.addPass(bloomPass);
+    composerRef.current = composer;
 
-  useFrame(({ clock }) => {
-    if (ringRef.current) {
-      const t = clock.getElapsedTime();
+    // Controls
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.minDistance = 50;
+    controls.maxDistance = 1000;
+    controlsRef.current = controls;
 
-      // Simple rotation
-      ringRef.current.rotation.x = Math.sin(t * 0.2) * 0.3;
-      ringRef.current.rotation.y = Math.sin(t * 0.1) * 0.3;
+    // Light sources
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    scene.add(ambientLight);
 
-      // Pulse scale
-      const scale = 1 + 0.1 * Math.sin(t * 0.5);
-      ringRef.current.scale.set(scale, scale, scale);
-    }
-  });
+    // Create starfield
+    createStarfield();
 
-  return (
-    <primitive object={new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: "#4f46e5", transparent: true, opacity: 0.4 }))} ref={ringRef} />
-  );
-}
+    // Create planets
+    createPlanets();
 
-function HeroCanvas() {
-  const { size, viewport } = useThree();
-  const aspect = size.width / viewport.width;
+    // Create asteroid belt
+    createAsteroidBelt();
 
-  return (
-    <>
-      <PerspectiveCamera makeDefault position={[0, 0, 6]} fov={60} />
-      <ambientLight intensity={0.8} />
-      <directionalLight position={[2, 2, 5]} intensity={1.5} />
+    // Animation loop
+    const animate = () => {
+      timeRef.current += 0.01;
 
-      {/* Enhanced Particle System */}
-      <ParticlesField count={2200} />
+      // Update planets
+      updatePlanets();
 
-      {/* Additional Visual Elements */}
-      <GlowingOrbs />
-      <GlowingRing />
-
-      {/* Let's remove the Environment component as it might be causing issues */}
-
-      <OrbitControls
-        enableZoom={false}
-        enablePan={false}
-        autoRotate
-        autoRotateSpeed={0.3}
-        maxPolarAngle={Math.PI / 1.5}
-        minPolarAngle={Math.PI / 3}
-        enableDamping
-        dampingFactor={0.05}
-      />
-    </>
-  );
-}
-
-export default function HeroSection() {
-  const canvasRef = useRef();
-  const [profileImage, setProfileImage] = useState(
-    "20241226_190337.jpg"
-  );
-
-  // Handle resize for canvas
-  useEffect(() => {
-    const handleResize = () => {
-      if (canvasRef.current) {
-        // Update canvas size if needed
+      // Rotate asteroid belt
+      if (asteroidBeltRef.current) {
+        asteroidBeltRef.current.rotation.z += 0.001;
       }
+
+      // Rotate stars slightly for subtle effect
+      if (starsRef.current) {
+        starsRef.current.rotation.x += 0.0001;
+        starsRef.current.rotation.y += 0.0001;
+      }
+
+      // Update controls
+      if (controlsRef.current) {
+        controlsRef.current.update();
+      }
+
+      // Render scene with post-processing
+      if (composerRef.current) {
+        composerRef.current.render();
+      }
+
+      animationIdRef.current = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    // Handle window resize
+    const handleResize = () => {
+      if (
+        !mountRef.current ||
+        !cameraRef.current ||
+        !rendererRef.current ||
+        !composerRef.current
+      )
+        return;
+
+      const width = mountRef.current.clientWidth;
+      const height = mountRef.current.clientHeight;
+
+      cameraRef.current.aspect = width / height;
+      cameraRef.current.updateProjectionMatrix();
+
+      rendererRef.current.setSize(width, height);
+      composerRef.current.setSize(width, height);
     };
 
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("resize", handleResize);
+
+      if (animationIdRef.current) {
+        cancelAnimationFrame(animationIdRef.current);
+      }
+
+      if (mountRef.current && rendererRef.current) {
+        mountRef.current.removeChild(rendererRef.current.domElement);
+      }
+
+      // Dispose resources
+      if (rendererRef.current) {
+        rendererRef.current.dispose();
+      }
+
+      // Clean up scene
+      if (sceneRef.current) {
+        while (sceneRef.current.children.length > 0) {
+          const object = sceneRef.current.children[0];
+          sceneRef.current.remove(object);
+        }
+      }
+    };
   }, []);
+
+  // Create starfield
+  const createStarfield = () => {
+    if (!sceneRef.current) return;
+
+    const starGeometry = new THREE.BufferGeometry();
+    const starMaterial = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 0.7,
+      transparent: true,
+    });
+
+    const starVertices = [];
+    for (let i = 0; i < 10000; i++) {
+      const x = (Math.random() - 0.5) * 2000;
+      const y = (Math.random() - 0.5) * 2000;
+      const z = (Math.random() - 0.5) * 2000;
+      starVertices.push(x, y, z);
+    }
+
+    starGeometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(starVertices, 3)
+    );
+    const stars = new THREE.Points(starGeometry, starMaterial);
+    sceneRef.current.add(stars);
+    starsRef.current = stars;
+  };
+
+  // Planet data - simplified (scaled for better visualization)
+  const planets = [
+    {
+      name: "Sun",
+      size: 40,
+      color: 0xffff00,
+      orbitRadius: 0,
+      orbitSpeed: 0,
+      rotationSpeed: 0.002,
+      emissive: true,
+    },
+    {
+      name: "Mercury",
+      size: 3.2,
+      color: 0xaaaaaa,
+      orbitRadius: 60,
+      orbitSpeed: 1.6,
+      rotationSpeed: 0.004,
+    },
+    {
+      name: "Venus",
+      size: 6,
+      color: 0xe6a760,
+      orbitRadius: 85,
+      orbitSpeed: 1.17,
+      rotationSpeed: 0.002,
+    },
+    {
+      name: "Earth",
+      size: 6.3,
+      color: 0x6b93d6,
+      orbitRadius: 120,
+      orbitSpeed: 1,
+      rotationSpeed: 0.02,
+    },
+    {
+      name: "Mars",
+      size: 3.4,
+      color: 0xd5704e,
+      orbitRadius: 180,
+      orbitSpeed: 0.8,
+      rotationSpeed: 0.018,
+    },
+    {
+      name: "Jupiter",
+      size: 22,
+      color: 0xe0be95,
+      orbitRadius: 250,
+      orbitSpeed: 0.43,
+      rotationSpeed: 0.04,
+    },
+    {
+      name: "Saturn",
+      size: 18.5,
+      color: 0xe0d7a4,
+      orbitRadius: 320,
+      orbitSpeed: 0.32,
+      rotationSpeed: 0.038,
+      hasRing: true,
+    },
+    {
+      name: "Uranus",
+      size: 8,
+      color: 0xa5f2f3,
+      orbitRadius: 390,
+      orbitSpeed: 0.23,
+      rotationSpeed: 0.03,
+    },
+    {
+      name: "Neptune",
+      size: 7.7,
+      color: 0x517cff,
+      orbitRadius: 460,
+      orbitSpeed: 0.18,
+      rotationSpeed: 0.031,
+    },
+  ];
+
+  // Create planets
+  const createPlanets = () => {
+    if (!sceneRef.current) return;
+
+    const planetObjects = [];
+    const orbitPaths = [];
+
+    planets.forEach((planet) => {
+      // Create planet geometry and material
+      const geometry = new THREE.SphereGeometry(planet.size, 32, 32);
+      let material;
+
+      if (planet.emissive) {
+        material = new THREE.MeshStandardMaterial({
+          color: planet.color,
+          emissive: planet.color,
+          emissiveIntensity: 2,
+        });
+      } else {
+        material = new THREE.MeshPhongMaterial({
+          color: planet.color,
+          shininess: 10,
+        });
+      }
+
+      // Create mesh
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.name = planet.name;
+
+      if (planet.orbitRadius > 0) {
+        // Position planets around the sun
+        const planetOrbitAngle = Math.random() * Math.PI * 2;
+        mesh.position.x = Math.cos(planetOrbitAngle) * planet.orbitRadius;
+        mesh.position.z = Math.sin(planetOrbitAngle) * planet.orbitRadius;
+
+        // Create orbit path
+        const orbitGeometry = new THREE.BufferGeometry();
+        const orbitPoints = [];
+        const segments = 128;
+
+        for (let i = 0; i <= segments; i++) {
+          const angle = (i / segments) * Math.PI * 2;
+          orbitPoints.push(
+            Math.cos(angle) * planet.orbitRadius,
+            0,
+            Math.sin(angle) * planet.orbitRadius
+          );
+        }
+
+        orbitGeometry.setAttribute(
+          "position",
+          new THREE.Float32BufferAttribute(orbitPoints, 3)
+        );
+        const orbitMaterial = new THREE.LineBasicMaterial({
+          color: 0xaaaaaa,
+          transparent: true,
+          opacity: 0.3,
+          linewidth: 1,
+        });
+
+        const orbit = new THREE.Line(orbitGeometry, orbitMaterial);
+        orbit.rotation.x = Math.PI / 2;
+        orbit.userData.isOrbit = true;
+        sceneRef.current.add(orbit);
+        orbitPaths.push(orbit);
+      }
+
+      sceneRef.current.add(mesh);
+      planetObjects.push({
+        mesh,
+        orbitSpeed: planet.orbitSpeed,
+        rotationSpeed: planet.rotationSpeed,
+        orbitRadius: planet.orbitRadius,
+      });
+
+      // Create ring for Saturn
+      if (planet.hasRing) {
+        const ringGeometry = new THREE.RingGeometry(
+          planet.size + 5,
+          planet.size + 12,
+          32
+        );
+        const ringMaterial = new THREE.MeshBasicMaterial({
+          color: 0xe0d7a4,
+          side: THREE.DoubleSide,
+        });
+        const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+        ring.rotation.x = Math.PI / 3;
+        mesh.add(ring);
+      }
+    });
+
+    planetsRef.current = planetObjects;
+    orbitPathsRef.current = orbitPaths;
+  };
+
+  // Create asteroid belt
+  const createAsteroidBelt = () => {
+    if (!sceneRef.current) return;
+
+    const asteroidGeometry = new THREE.TorusGeometry(240, 40, 16, 100);
+    const asteroidMaterial = new THREE.MeshBasicMaterial({
+      color: 0x888888,
+      transparent: true,
+      opacity: 0.2,
+    });
+    const asteroidBelt = new THREE.Mesh(asteroidGeometry, asteroidMaterial);
+    asteroidBelt.rotation.x = Math.PI / 2;
+    sceneRef.current.add(asteroidBelt);
+    asteroidBeltRef.current = asteroidBelt;
+  };
+
+  // Update planets positions and rotations
+  const updatePlanets = () => {
+    if (!planetsRef.current) return;
+
+    planetsRef.current.forEach((planet) => {
+      if (planet.orbitRadius > 0) {
+        planet.mesh.position.x =
+          Math.cos(timeRef.current * planet.orbitSpeed) * planet.orbitRadius;
+        planet.mesh.position.z =
+          Math.sin(timeRef.current * planet.orbitSpeed) * planet.orbitRadius;
+      }
+
+      if (autoRotate) {
+        planet.mesh.rotation.y += planet.rotationSpeed;
+      }
+    });
+  };
+
+  // Toggle orbit visibility
+  const handleToggleOrbits = () => {
+    setShowOrbits(!showOrbits);
+    orbitPathsRef.current.forEach((orbit) => {
+      orbit.visible = !showOrbits;
+    });
+  };
+
+  // Toggle rotation
+  const handleToggleRotation = () => {
+    setAutoRotate(!autoRotate);
+  };
+
+  // Zoom to sun
+  const handleZoomToSun = () => {
+    if (!cameraRef.current || !controlsRef.current || !sceneRef.current) return;
+
+    const sun = sceneRef.current.getObjectByName("Sun");
+    if (sun) {
+      animateCameraTo(sun.position, 1000);
+    }
+  };
+
+  // Animate camera to position
+  const animateCameraTo = (targetPosition, duration = 1000) => {
+    if (!cameraRef.current) return;
+
+    const startPosition = cameraRef.current.position.clone();
+    const startTime = Date.now();
+
+    const update = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      cameraRef.current.position.lerpVectors(
+        startPosition,
+        new THREE.Vector3(
+          targetPosition.x,
+          targetPosition.y + 200,
+          targetPosition.z + 300
+        ),
+        progress
+      );
+
+      if (progress < 1) {
+        requestAnimationFrame(update);
+      }
+    };
+
+    update();
+  };
 
   // Animation variants for content
   const contentVariants = {
@@ -347,28 +527,15 @@ export default function HeroSection() {
     },
   };
 
-  // Floating animations for the image
-  const floatAnimation = {
-    y: [0, -15, 0],
-    transition: {
-      duration: 4,
-      repeat: Infinity,
-      repeatType: "reverse",
-      ease: "easeInOut",
-    },
-  };
-
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
-      {/* Enhanced Background Canvas with Depth Effect */}
-      <div ref={canvasRef} className="absolute inset-0 z-0">
-        <Canvas dpr={[1, 2]}>
-          <HeroCanvas />
-        </Canvas>
-      </div>
+      {/* 3D Solar System Background */}
+      <div ref={mountRef} className="absolute inset-0 z-0" />
 
+      {/* Content Overlay */}
       <div className="container relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          {/* Left Column - Text Content */}
           <div>
             <motion.div
               initial="hidden"
@@ -389,7 +556,7 @@ export default function HeroSection() {
                   variants={contentVariants}
                   custom={1}
                 >
-                  {siteConfig.name}
+                  Ayush Tiwari
                 </motion.span>
               </h1>
 
@@ -398,54 +565,32 @@ export default function HeroSection() {
                 variants={contentVariants}
                 custom={1.5}
               >
-                {siteConfig.title}
+                Space Enthusiast & Web Developer
               </motion.p>
 
               <div className="flex flex-wrap gap-4">
                 <motion.div variants={contentVariants} custom={2}>
-                  <Button
-                    size="lg"
-                    asChild
-                    className="relative overflow-hidden group"
+                  <button
+                    onClick={handleZoomToSun}
+                    className="bg-primary hover:bg-primary/80 text-white py-2 px-4 rounded-md transition-all"
                   >
-                    <Link to="/projects">
-                      <span className="relative z-10">View Projects</span>
-                      <motion.span
-                        className="absolute inset-0 bg-indigo-700 opacity-0 group-hover:opacity-100"
-                        initial={{ x: "-100%" }}
-                        whileHover={{ x: 0 }}
-                        transition={{ duration: 0.3 }}
-                      />
-                    </Link>
-                  </Button>
+                    Explore the Solar System
+                  </button>
                 </motion.div>
 
                 <motion.div variants={contentVariants} custom={2.5}>
-                  <ButtonOutline
-                    size="lg"
-                    asChild
-                    className="group relative overflow-hidden"
+                  <button
+                    onClick={handleToggleOrbits}
+                    className="bg-transparent border border-primary text-primary hover:bg-primary/10 py-2 px-4 rounded-md transition-all"
                   >
-                    <a
-                      href={siteConfig.resume}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <span className="relative z-10">Download Resume</span>
-                      <motion.span
-                        className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100"
-                        initial={{ y: "100%" }}
-                        whileHover={{ y: 0 }}
-                        transition={{ duration: 0.3 }}
-                      />
-                    </a>
-                  </ButtonOutline>
+                    {showOrbits ? "Hide" : "Show"} Orbits
+                  </button>
                 </motion.div>
               </div>
             </motion.div>
           </div>
 
-          {/* Circular Profile Image with Enhanced Animations */}
+          {/* Right Column - Circular Profile Image */}
           <motion.div
             initial="hidden"
             animate="visible"
@@ -507,7 +652,11 @@ export default function HeroSection() {
                     src={profileImage}
                     alt="Profile"
                     className="h-full w-full object-cover"
-                    onError={() => setProfileImage("/api/placeholder/300/300")}
+                    onError={() =>
+                      setProfileImage(
+                        "20241226_190337.jpg"
+                      )
+                    }
                   />
 
                   {/* Overlay shine effect */}
@@ -549,10 +698,10 @@ export default function HeroSection() {
             ease: "easeInOut",
           }}
         >
-          <span className="text-muted-foreground text-sm mb-2">
+          <span className="text-muted-foreground text-xs mb-2">
             Scroll down
           </span>
-          <div className="w-6 h-10 border-2 border-muted-foreground rounded-full flex justify-center p-1 relative overflow-hidden">
+          <div className="w-5 h-8 border-2 border-muted-foreground rounded-full flex justify-center p-1 relative overflow-hidden">
             {/* Glowing background effect */}
             <motion.div
               className="absolute inset-0 bg-primary/20 rounded-full"
@@ -566,8 +715,8 @@ export default function HeroSection() {
               }}
             />
             <motion.div
-              className="w-1.5 h-1.5 bg-primary rounded-full"
-              animate={{ y: [0, 12, 0] }}
+              className="w-1 h-1 bg-primary rounded-full"
+              animate={{ y: [0, 10, 0] }}
               transition={{
                 duration: 1.5,
                 repeat: Infinity,
@@ -577,6 +726,22 @@ export default function HeroSection() {
           </div>
         </motion.div>
       </motion.div>
+
+      {/* Solar System Controls */}
+      <div className="absolute bottom-4 right-4 z-10 flex gap-2">
+        <button
+          onClick={handleToggleOrbits}
+          className="px-2 py-1 text-xs bg-black/50 text-white border border-white/20 rounded hover:bg-black/70 backdrop-blur-md"
+        >
+          {showOrbits ? "Hide" : "Show"} Orbits
+        </button>
+        <button
+          onClick={handleToggleRotation}
+          className="px-2 py-1 text-xs bg-black/50 text-white border border-white/20 rounded hover:bg-black/70 backdrop-blur-md"
+        >
+          {autoRotate ? "Pause" : "Resume"} Rotation
+        </button>
+      </div>
     </section>
   );
 }

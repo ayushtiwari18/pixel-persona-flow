@@ -1,4 +1,3 @@
-
 import { Certificate } from "@/types";
 
 export const certifications: Certificate[] = [
