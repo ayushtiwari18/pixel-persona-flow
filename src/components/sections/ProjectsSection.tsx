@@ -1,7 +1,8 @@
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { projects } from "@/data/projects";
+import { projects as defaultProjects } from "@/data/projects";
 import { formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Github, ExternalLink, BookOpen, Calendar, Code } from "lucide-react";
@@ -14,6 +15,7 @@ import {
   DialogDescription,
   DialogClose,
 } from "@/components/ui/dialog";
+import { Project } from "@/types";
 
 type Category =
   | "all"
@@ -41,7 +43,7 @@ const ProjectCard = ({
   index,
   onClick,
 }: {
-  project: (typeof projects)[0];
+  project: Project;
   index: number;
   onClick: () => void;
 }) => {
@@ -150,7 +152,7 @@ function ProjectDialog({
   onClose,
 }: {
   open: boolean;
-  project: (typeof projects)[0] | null;
+  project: Project | null;
   onClose: () => void;
 }) {
   if (!project) return null;
@@ -289,11 +291,15 @@ const CategoryFilter = ({
   </motion.button>
 );
 
-export default function ProjectsSection({ limit = 6 }: { limit?: number }) {
+export default function ProjectsSection({ 
+  limit = 6, 
+  projects = defaultProjects 
+}: { 
+  limit?: number;
+  projects?: Project[];
+}) {
   const [activeCategory, setActiveCategory] = useState<Category>("all");
-  const [selectedProject, setSelectedProject] = useState<
-    (typeof projects)[0] | null
-  >(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   // Filter by category
   const filteredProjects =

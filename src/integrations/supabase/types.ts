@@ -87,6 +87,48 @@ export type Database = {
         }
         Relationships: []
       }
+      projects: {
+        Row: {
+          category: string
+          date: string
+          demourl: string | null
+          description: string
+          featured: boolean
+          githuburl: string | null
+          id: string
+          image: string
+          submissioncount: number | null
+          technologies: string[]
+          title: string
+        }
+        Insert: {
+          category: string
+          date: string
+          demourl?: string | null
+          description: string
+          featured?: boolean
+          githuburl?: string | null
+          id?: string
+          image: string
+          submissioncount?: number | null
+          technologies?: string[]
+          title: string
+        }
+        Update: {
+          category?: string
+          date?: string
+          demourl?: string | null
+          description?: string
+          featured?: boolean
+          githuburl?: string | null
+          id?: string
+          image?: string
+          submissioncount?: number | null
+          technologies?: string[]
+          title?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
