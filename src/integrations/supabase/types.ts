@@ -57,6 +57,42 @@ export type Database = {
         }
         Relationships: []
       }
+      coding_profiles: {
+        Row: {
+          created_at: string | null
+          github_display: boolean | null
+          github_username: string | null
+          hackerrank_display: boolean | null
+          hackerrank_username: string | null
+          id: string
+          leetcode_display: boolean | null
+          leetcode_username: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          github_display?: boolean | null
+          github_username?: string | null
+          hackerrank_display?: boolean | null
+          hackerrank_username?: string | null
+          id?: string
+          leetcode_display?: boolean | null
+          leetcode_username?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          github_display?: boolean | null
+          github_username?: string | null
+          hackerrank_display?: boolean | null
+          hackerrank_username?: string | null
+          id?: string
+          leetcode_display?: boolean | null
+          leetcode_username?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       hackathons: {
         Row: {
           date: string
@@ -84,6 +120,36 @@ export type Database = {
           name?: string
           result?: string
           role?: string
+        }
+        Relationships: []
+      }
+      hackerrank_badges: {
+        Row: {
+          color_class: string
+          created_at: string | null
+          id: string
+          level: number
+          name: string
+          stars: number
+          updated_at: string | null
+        }
+        Insert: {
+          color_class: string
+          created_at?: string | null
+          id?: string
+          level: number
+          name: string
+          stars: number
+          updated_at?: string | null
+        }
+        Update: {
+          color_class?: string
+          created_at?: string | null
+          id?: string
+          level?: number
+          name?: string
+          stars?: number
+          updated_at?: string | null
         }
         Relationships: []
       }

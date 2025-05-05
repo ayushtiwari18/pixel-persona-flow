@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +6,9 @@ import { Edit, Plus, Trash, Code, Check, X, Github, PieChart, Save } from "lucid
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
 
 type HackerRankBadge = {
   id: string;
@@ -35,26 +37,22 @@ type CodingProfileData = {
 export default function CodingProfilesManager() {
   // Tab state
   const [activeTab, setActiveTab] = useState("usernames");
+  const queryClient = useQueryClient();
   
   // Main state for the profiles data
   const [profilesData, setProfilesData] = useState<CodingProfileData>({
     github: {
-      username: "ayushtiwari18",
+      username: "",
       displayStats: true
     },
     leetcode: {
-      username: "_aayush03",
+      username: "",
       displayStats: true
     },
     hackerrank: {
-      username: "ayushtiwari10201",
+      username: "",
       displayStats: true,
-      badges: [
-        { id: "1", name: "Problem Solving", level: 6, stars: 5, colorClass: "bg-green-100 text-green-800" },
-        { id: "2", name: "JavaScript", level: 5, stars: 5, colorClass: "bg-yellow-100 text-yellow-800" },
-        { id: "3", name: "Python", level: 4, stars: 4, colorClass: "bg-blue-100 text-blue-800" },
-        { id: "4", name: "SQL", level: 3, stars: 3, colorClass: "bg-purple-100 text-purple-800" },
-      ]
+      badges: []
     }
   });
 
@@ -64,11 +62,197 @@ export default function CodingProfilesManager() {
   
   // State for currently editing badge
   const [editingBadge, setEditingBadge] = useState<HackerRankBadge | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Initialize JSON content
+  // Fetch profile data from Supabase
+  const { data: profileData, isLoading: isProfileLoading } = useQuery({
+    queryKey: ['admin-coding-profiles'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('coding_profiles')
+        .select('*')
+        .limit(1)
+        .single();
+      
+      if (error) {
+        console.error("Error fetching coding profiles:", error);
+        if (error.code !== 'PGRST116') { // Not found error
+          toast.error("Failed to load coding profiles");
+        }
+        return null;
+      }
+      
+      return data;
+    }
+  });
+
+  // Fetch HackerRank badges from Supabase
+  const { data: badgesData, isLoading: isBadgesLoading } = useQuery({
+    queryKey: ['admin-hackerrank-badges'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('hackerrank_badges')
+        .select('*')
+        .order('level', { ascending: false });
+      
+      if (error) {
+        console.error("Error fetching HackerRank badges:", error);
+        toast.error("Failed to load HackerRank badges");
+        return [];
+      }
+      
+      return data;
+    }
+  });
+
+  // Update profiles mutation
+  const updateProfilesMutation = useMutation({
+    mutationFn: async ({
+      github_username,
+      github_display,
+      leetcode_username,
+      leetcode_display,
+      hackerrank_username,
+      hackerrank_display,
+      id
+    }: {
+      github_username: string;
+      github_display: boolean;
+      leetcode_username: string;
+      leetcode_display: boolean;
+      hackerrank_username: string;
+      hackerrank_display: boolean;
+      id?: string;
+    }) => {
+      // If we have an existing profile, update it
+      if (id) {
+        const { error } = await supabase
+          .from('coding_profiles')
+          .update({
+            github_username,
+            github_display,
+            leetcode_username,
+            leetcode_display,
+            hackerrank_username,
+            hackerrank_display,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', id);
+        
+        if (error) throw error;
+      } else {
+        // Otherwise, insert a new profile
+        const { error } = await supabase
+          .from('coding_profiles')
+          .insert({
+            github_username,
+            github_display,
+            leetcode_username,
+            leetcode_display,
+            hackerrank_username,
+            hackerrank_display
+          });
+        
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      toast.success("Coding profiles saved successfully!");
+      queryClient.invalidateQueries({ queryKey: ['admin-coding-profiles'] });
+      queryClient.invalidateQueries({ queryKey: ['coding-profiles'] });
+    },
+    onError: (error) => {
+      console.error("Error saving profiles:", error);
+      toast.error("Failed to save coding profiles");
+    }
+  });
+
+  // Badge mutation
+  const badgeMutation = useMutation({
+    mutationFn: async (operation: { 
+      type: 'create' | 'update' | 'delete'; 
+      badge: HackerRankBadge 
+    }) => {
+      if (operation.type === 'create') {
+        const { name, level, stars, colorClass } = operation.badge;
+        const { error } = await supabase
+          .from('hackerrank_badges')
+          .insert({ name, level, stars, color_class: colorClass });
+        
+        if (error) throw error;
+      } else if (operation.type === 'update') {
+        const { id, name, level, stars, colorClass } = operation.badge;
+        const { error } = await supabase
+          .from('hackerrank_badges')
+          .update({ 
+            name, 
+            level, 
+            stars, 
+            color_class: colorClass,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', id);
+        
+        if (error) throw error;
+      } else if (operation.type === 'delete') {
+        const { id } = operation.badge;
+        const { error } = await supabase
+          .from('hackerrank_badges')
+          .delete()
+          .eq('id', id);
+        
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-hackerrank-badges'] });
+      queryClient.invalidateQueries({ queryKey: ['hackerrank-badges'] });
+    },
+    onError: (error) => {
+      console.error("Error managing badge:", error);
+      toast.error("Failed to manage badge");
+    }
+  });
+
+  // Initialize profile data when it's loaded
   useEffect(() => {
-    setJsonEditorContent(JSON.stringify(profilesData, null, 2));
-  }, []);
+    if (profileData) {
+      setProfilesData({
+        github: {
+          username: profileData.github_username || "",
+          displayStats: profileData.github_display
+        },
+        leetcode: {
+          username: profileData.leetcode_username || "",
+          displayStats: profileData.leetcode_display
+        },
+        hackerrank: {
+          username: profileData.hackerrank_username || "",
+          displayStats: profileData.hackerrank_display,
+          badges: []
+        }
+      });
+    }
+  }, [profileData]);
+
+  // Initialize badges when they're loaded
+  useEffect(() => {
+    if (badgesData) {
+      setProfilesData(prev => ({
+        ...prev,
+        hackerrank: {
+          ...prev.hackerrank,
+          badges: badgesData.map(badge => ({
+            id: badge.id,
+            name: badge.name,
+            level: badge.level,
+            stars: badge.stars,
+            colorClass: badge.color_class
+          }))
+        }
+      }));
+    }
+  }, [badgesData]);
 
   // When data changes, update the JSON editor
   useEffect(() => {
@@ -97,10 +281,21 @@ export default function CodingProfilesManager() {
     }));
   };
 
-  const handleSaveProfiles = () => {
-    // In a real app, you would save this to the database
-    // For demo, we'll just show a success message
-    toast.success("Coding profiles saved successfully!");
+  const handleSaveProfiles = async () => {
+    setIsSubmitting(true);
+    try {
+      await updateProfilesMutation.mutateAsync({
+        github_username: profilesData.github.username,
+        github_display: profilesData.github.displayStats,
+        leetcode_username: profilesData.leetcode.username,
+        leetcode_display: profilesData.leetcode.displayStats,
+        hackerrank_username: profilesData.hackerrank.username,
+        hackerrank_display: profilesData.hackerrank.displayStats,
+        id: profileData?.id
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleAddBadge = () => {
@@ -121,57 +316,68 @@ export default function CodingProfilesManager() {
       colorClass: badgeColors[Math.floor(Math.random() * badgeColors.length)]
     };
     
-    setProfilesData(prev => ({
-      ...prev,
-      hackerrank: {
-        ...prev.hackerrank,
-        badges: [...prev.hackerrank.badges, newBadge]
-      }
-    }));
-    
     setEditingBadge(newBadge);
-    toast.success("Badge added! Edit it to customize.");
+    
+    // This is a new badge, so we don't add it to the state until it's saved
+    toast.info("Enter badge details and save to create");
   };
 
   const handleEditBadge = (badge: HackerRankBadge) => {
-    setEditingBadge(badge);
+    setEditingBadge({...badge});
   };
 
-  const handleUpdateBadge = () => {
+  const handleUpdateBadge = async () => {
     if (!editingBadge) return;
     
-    setProfilesData(prev => ({
-      ...prev,
-      hackerrank: {
-        ...prev.hackerrank,
-        badges: prev.hackerrank.badges.map(badge => 
-          badge.id === editingBadge.id ? editingBadge : badge
-        )
-      }
-    }));
+    const isNewBadge = !badgesData?.some(badge => badge.id === editingBadge.id);
     
-    setEditingBadge(null);
-    toast.success("Badge updated successfully!");
+    try {
+      await badgeMutation.mutateAsync({
+        type: isNewBadge ? 'create' : 'update',
+        badge: editingBadge
+      });
+      
+      if (isNewBadge) {
+        toast.success("Badge created successfully!");
+      } else {
+        toast.success("Badge updated successfully!");
+      }
+      
+      setEditingBadge(null);
+    } catch (error) {
+      console.error("Error saving badge:", error);
+    }
   };
 
   const handleCancelEditBadge = () => {
     setEditingBadge(null);
   };
 
-  const handleDeleteBadge = (id: string) => {
-    setProfilesData(prev => ({
-      ...prev,
-      hackerrank: {
-        ...prev.hackerrank,
-        badges: prev.hackerrank.badges.filter(badge => badge.id !== id)
+  const handleDeleteBadge = async (id: string) => {
+    const badge = badgesData?.find(badge => badge.id === id);
+    if (!badge) return;
+    
+    try {
+      await badgeMutation.mutateAsync({
+        type: 'delete',
+        badge: {
+          id: badge.id,
+          name: badge.name,
+          level: badge.level,
+          stars: badge.stars,
+          colorClass: badge.color_class
+        }
+      });
+      
+      if (editingBadge?.id === id) {
+        setEditingBadge(null);
       }
-    }));
-    
-    if (editingBadge?.id === id) {
-      setEditingBadge(null);
+      
+      toast.success("Badge deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting badge:", error);
+      toast.error("Failed to delete badge");
     }
-    
-    toast.success("Badge deleted successfully!");
   };
 
   const handleJsonChange = (value: string) => {
@@ -179,7 +385,7 @@ export default function CodingProfilesManager() {
     setJsonError(null);
   };
 
-  const handleSaveJson = () => {
+  const handleSaveJson = async () => {
     try {
       const parsed = JSON.parse(jsonEditorContent);
       
@@ -189,6 +395,21 @@ export default function CodingProfilesManager() {
       }
       
       setProfilesData(parsed);
+      
+      // Save profile data
+      await updateProfilesMutation.mutateAsync({
+        github_username: parsed.github.username,
+        github_display: parsed.github.displayStats,
+        leetcode_username: parsed.leetcode.username,
+        leetcode_display: parsed.leetcode.displayStats,
+        hackerrank_username: parsed.hackerrank.username,
+        hackerrank_display: parsed.hackerrank.displayStats,
+        id: profileData?.id
+      });
+      
+      // We don't handle badges from JSON currently as it would be complex
+      // to determine which to create, update, or delete
+      
       toast.success("JSON saved and applied successfully!");
       setJsonError(null);
     } catch (error) {
@@ -196,6 +417,15 @@ export default function CodingProfilesManager() {
       toast.error("Invalid JSON: " + (error as Error).message);
     }
   };
+
+  if (isProfileLoading || isBadgesLoading) {
+    return (
+      <div className="flex justify-center items-center p-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
+        <p className="text-lg">Loading coding profiles data...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -323,9 +553,18 @@ export default function CodingProfilesManager() {
           </div>
 
           <div className="flex justify-end mt-4">
-            <Button onClick={handleSaveProfiles}>
-              <Save className="h-4 w-4 mr-2" />
-              Save Changes
+            <Button onClick={handleSaveProfiles} disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Changes
+                </>
+              )}
             </Button>
           </div>
         </TabsContent>
@@ -341,7 +580,87 @@ export default function CodingProfilesManager() {
             </div>
             
             <div className="space-y-4">
-              {profilesData.hackerrank.badges.map((badge) => (
+              {editingBadge && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 border rounded-md bg-muted/50 mb-4"
+                >
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Badge Name</label>
+                        <Input
+                          value={editingBadge.name}
+                          onChange={(e) => setEditingBadge({ ...editingBadge, name: e.target.value })}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Color Class</label>
+                        <select
+                          className="w-full p-2 border rounded-md"
+                          value={editingBadge.colorClass}
+                          onChange={(e) => setEditingBadge({ ...editingBadge, colorClass: e.target.value })}
+                        >
+                          <option value="bg-green-100 text-green-800">Green</option>
+                          <option value="bg-blue-100 text-blue-800">Blue</option>
+                          <option value="bg-yellow-100 text-yellow-800">Yellow</option>
+                          <option value="bg-red-100 text-red-800">Red</option>
+                          <option value="bg-purple-100 text-purple-800">Purple</option>
+                          <option value="bg-pink-100 text-pink-800">Pink</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Level (1-6)</label>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={6}
+                          value={editingBadge.level}
+                          onChange={(e) => setEditingBadge({ ...editingBadge, level: parseInt(e.target.value) || 1 })}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Stars (1-5)</label>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={5}
+                          value={editingBadge.stars}
+                          onChange={(e) => setEditingBadge({ ...editingBadge, stars: parseInt(e.target.value) || 1 })}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-end gap-2 mt-2">
+                      <Button variant="ghost" onClick={handleCancelEditBadge}>
+                        <X className="h-4 w-4 mr-2" />
+                        Cancel
+                      </Button>
+                      <Button onClick={handleUpdateBadge} disabled={badgeMutation.isPending}>
+                        {badgeMutation.isPending ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <Check className="h-4 w-4 mr-2" />
+                            Save
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {badgesData && badgesData.map((badge) => (
                 <motion.div
                   key={badge.id}
                   initial={{ opacity: 0, y: 10 }}
@@ -350,119 +669,45 @@ export default function CodingProfilesManager() {
                     editingBadge?.id === badge.id ? "bg-muted/50" : ""
                   }`}
                 >
-                  {editingBadge?.id === badge.id ? (
-                    // Editing mode
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">Badge Name</label>
-                          <Input
-                            value={editingBadge.name}
-                            onChange={(e) => setEditingBadge({ ...editingBadge, name: e.target.value })}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">Color Class</label>
-                          <select
-                            className="w-full p-2 border rounded-md"
-                            value={editingBadge.colorClass}
-                            onChange={(e) => setEditingBadge({ ...editingBadge, colorClass: e.target.value })}
-                          >
-                            <option value="bg-green-100 text-green-800">Green</option>
-                            <option value="bg-blue-100 text-blue-800">Blue</option>
-                            <option value="bg-yellow-100 text-yellow-800">Yellow</option>
-                            <option value="bg-red-100 text-red-800">Red</option>
-                            <option value="bg-purple-100 text-purple-800">Purple</option>
-                            <option value="bg-pink-100 text-pink-800">Pink</option>
-                          </select>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">Level (1-6)</label>
-                          <Input
-                            type="number"
-                            min={1}
-                            max={6}
-                            value={editingBadge.level}
-                            onChange={(e) => setEditingBadge({ ...editingBadge, level: parseInt(e.target.value) || 1 })}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">Stars (1-5)</label>
-                          <Input
-                            type="number"
-                            min={1}
-                            max={5}
-                            value={editingBadge.stars}
-                            onChange={(e) => setEditingBadge({ ...editingBadge, stars: parseInt(e.target.value) || 1 })}
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="flex justify-end gap-2 mt-2">
-                        <Button variant="ghost" onClick={handleCancelEditBadge}>
-                          <X className="h-4 w-4 mr-2" />
-                          Cancel
-                        </Button>
-                        <Button onClick={handleUpdateBadge}>
-                          <Check className="h-4 w-4 mr-2" />
-                          Save
-                        </Button>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-medium text-lg">{badge.name}</div>
+                      <div className="flex items-center gap-3 mt-1 text-sm">
+                        <span className="text-muted-foreground">Level: {badge.level}</span>
+                        <span className="text-muted-foreground">
+                          Stars: {"★".repeat(badge.stars)}{"☆".repeat(5 - badge.stars)}
+                        </span>
+                        <span 
+                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs ${badge.color_class}`}
+                        >
+                          {badge.color_class.includes("green") ? "Green" : 
+                            badge.color_class.includes("blue") ? "Blue" :
+                            badge.color_class.includes("yellow") ? "Yellow" :
+                            badge.color_class.includes("red") ? "Red" :
+                            badge.color_class.includes("purple") ? "Purple" : 
+                            badge.color_class.includes("pink") ? "Pink" : "Custom"}
+                        </span>
                       </div>
                     </div>
-                  ) : (
-                    // View mode
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-lg">{badge.name}</div>
-                        <div className="flex items-center gap-3 mt-1 text-sm">
-                          <span className="text-muted-foreground">Level: {badge.level}</span>
-                          <span className="text-muted-foreground">
-                            Stars: {"★".repeat(badge.stars)}{"☆".repeat(5 - badge.stars)}
-                          </span>
-                          <span 
-                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs ${badge.colorClass}`}
-                          >
-                            {badge.colorClass.includes("green") ? "Green" : 
-                              badge.colorClass.includes("blue") ? "Blue" :
-                              badge.colorClass.includes("yellow") ? "Yellow" :
-                              badge.colorClass.includes("red") ? "Red" :
-                              badge.colorClass.includes("purple") ? "Purple" : 
-                              badge.colorClass.includes("pink") ? "Pink" : "Custom"}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" onClick={() => handleEditBadge(badge)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="destructive" size="sm" onClick={() => handleDeleteBadge(badge.id)}>
-                          <Trash className="h-4 w-4" />
-                        </Button>
-                      </div>
+                    
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => handleEditBadge(badge)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="destructive" size="sm" onClick={() => handleDeleteBadge(badge.id)}>
+                        <Trash className="h-4 w-4" />
+                      </Button>
                     </div>
-                  )}
+                  </div>
                 </motion.div>
               ))}
 
-              {profilesData.hackerrank.badges.length === 0 && (
+              {(!badgesData || badgesData.length === 0) && !editingBadge && (
                 <div className="text-center text-muted-foreground py-8">
                   No badges added yet. Click "Add Badge" to create one.
                 </div>
               )}
             </div>
-          </div>
-          
-          <div className="flex justify-end mt-4">
-            <Button onClick={handleSaveProfiles}>
-              <Save className="h-4 w-4 mr-2" />
-              Save Changes
-            </Button>
           </div>
         </TabsContent>
         
