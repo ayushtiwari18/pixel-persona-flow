@@ -38,13 +38,13 @@ export default function ProjectsManager() {
         title: project.title,
         description: project.description,
         image: project.image,
-        demoUrl: project.demoUrl || undefined,
-        githubUrl: project.githubUrl || undefined,
+        demoUrl: project.demourl || undefined,
+        githubUrl: project.githuburl || undefined,
         technologies: project.technologies || [],
         category: project.category as "web" | "mobile" | "backend" | "machine-learning" | "other",
         featured: project.featured,
         date: project.date,
-        submissionCount: project.submissionCount || undefined
+        submissionCount: project.submissioncount || undefined
       }));
     }
   });
@@ -61,7 +61,18 @@ export default function ProjectsManager() {
     mutationFn: async (newProject: Omit<Project, "id">) => {
       const { data, error } = await supabase
         .from('projects')
-        .insert([newProject])
+        .insert([{
+          title: newProject.title,
+          description: newProject.description,
+          image: newProject.image,
+          demourl: newProject.demoUrl,
+          githuburl: newProject.githubUrl,
+          technologies: newProject.technologies,
+          category: newProject.category,
+          featured: newProject.featured,
+          date: newProject.date,
+          submissioncount: newProject.submissionCount
+        }])
         .select()
         .single();
       
@@ -87,13 +98,13 @@ export default function ProjectsManager() {
           title: project.title,
           description: project.description,
           image: project.image,
-          demoUrl: project.demoUrl,
-          githubUrl: project.githubUrl,
+          demourl: project.demoUrl,
+          githuburl: project.githubUrl,
           technologies: project.technologies,
           category: project.category,
           featured: project.featured,
           date: project.date,
-          submissionCount: project.submissionCount
+          submissioncount: project.submissionCount
         })
         .eq('id', project.id)
         .select()

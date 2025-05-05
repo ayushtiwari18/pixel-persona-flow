@@ -32,13 +32,13 @@ export default function ProjectsPage() {
         title: project.title,
         description: project.description,
         image: project.image,
-        demoUrl: project.demoUrl || undefined,
-        githubUrl: project.githubUrl || undefined,
+        demoUrl: project.demourl || undefined,
+        githubUrl: project.githuburl || undefined,
         technologies: project.technologies || [],
         category: project.category as "web" | "mobile" | "backend" | "machine-learning" | "other",
         featured: project.featured,
         date: project.date,
-        submissionCount: project.submissionCount || undefined
+        submissionCount: project.submissioncount || undefined
       }));
     }
   });
