@@ -4,14 +4,33 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HackathonCard } from "@/components/modules/Hackathons/HackathonCard";
-import { hackathons } from "@/data/hackathons";
+import { hackathons as localHackathons } from "@/data/hackathons";
+import { useState, useEffect } from "react";
+import { fetchHackathonsPreview } from "@/services/hackathonService";
+import { LocalHackathon } from "@/types/hackathon";
 
 interface HackathonsPreviewProps {
   limit?: number;
 }
 
 export default function HackathonsPreview({ limit = 2 }: HackathonsPreviewProps) {
-  const recentHackathons = hackathons.slice(0, limit);
+  const [hackathons, setHackathons] = useState<LocalHackathon[]>(localHackathons.slice(0, limit));
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getHackathonsPreview = async () => {
+      try {
+        const data = await fetchHackathonsPreview(limit);
+        setHackathons(data);
+      } catch (error) {
+        console.error("Failed to fetch hackathons preview:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getHackathonsPreview();
+  }, [limit]);
 
   return (
     <section className="py-16 md:py-24">
@@ -33,15 +52,21 @@ export default function HackathonsPreview({ limit = 2 }: HackathonsPreviewProps)
           </Button>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {recentHackathons.map((hackathon) => (
-            <HackathonCard
-              key={hackathon.id}
-              hackathon={hackathon}
-              variant="preview"
-            />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center items-center py-10">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+          </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {hackathons.map((hackathon) => (
+              <HackathonCard
+                key={hackathon.id}
+                hackathon={hackathon}
+                variant="preview"
+              />
+            ))}
+          </div>
+        )}
 
         <div className="mt-8 text-center md:hidden">
           <Button asChild>
