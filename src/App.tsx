@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,6 +22,7 @@ import AdminBlogPage from "./pages/admin/AdminBlogPage";
 import AdminCertificationsPage from "./pages/admin/AdminCertificationsPage";
 import AdminCodingProfilesPage from "./pages/admin/AdminCodingProfilesPage";
 import AdminProfilePage from "./pages/admin/AdminProfilePage";
+import AdminHackathonsPage from "./pages/admin/AdminHackathonsPage";
 import NotFound from "./pages/NotFound";
 import HackathonsPage from "./pages/HackathonsPage";
 
@@ -50,6 +52,7 @@ const App = () => (
             <Route path="/admin/projects" element={<AdminProjectsPage />} />
             <Route path="/admin/blog" element={<AdminBlogPage />} />
             <Route path="/admin/certifications" element={<AdminCertificationsPage />} />
+            <Route path="/admin/hackathons" element={<AdminHackathonsPage />} />
             <Route path="/admin/coding-profiles" element={<AdminCodingProfilesPage />} />
             <Route path="/admin/profile" element={<AdminProfilePage />} />
             <Route path="*" element={<NotFound />} />

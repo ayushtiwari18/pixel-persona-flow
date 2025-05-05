@@ -87,6 +87,12 @@ export default function AdminLayout({ children, title = "Admin Dashboard" }: Adm
               Certifications
             </Link>
             <Link
+              to="/admin/hackathons"
+              className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+            >
+              Hackathons
+            </Link>
+            <Link
               to="/admin/coding-profiles"
               className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
             >

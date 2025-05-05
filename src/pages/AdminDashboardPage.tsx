@@ -8,6 +8,7 @@ import BlogManager from "@/components/admin/BlogManager";
 import CertificationsManager from "@/components/admin/CertificationsManager";
 import CodingProfilesManager from "@/components/admin/CodingProfilesManager";
 import ProfileManager from "@/components/admin/ProfileManager";
+import HackathonsManager from "@/components/admin/HackathonsManager";
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -20,6 +21,7 @@ export default function AdminDashboardPage() {
           <TabsTrigger value="projects">Projects</TabsTrigger>
           <TabsTrigger value="blog">Blog Posts</TabsTrigger>
           <TabsTrigger value="certifications">Certifications</TabsTrigger>
+          <TabsTrigger value="hackathons">Hackathons</TabsTrigger>
           <TabsTrigger value="coding">Coding Profiles</TabsTrigger>
           <TabsTrigger value="profile">Profile</TabsTrigger>
         </TabsList>
@@ -38,6 +40,10 @@ export default function AdminDashboardPage() {
         
         <TabsContent value="certifications">
           <CertificationsManager />
+        </TabsContent>
+        
+        <TabsContent value="hackathons">
+          <HackathonsManager />
         </TabsContent>
         
         <TabsContent value="coding">
