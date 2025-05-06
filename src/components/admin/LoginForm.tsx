@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginForm() {
@@ -14,45 +13,19 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { isAdmin } = useAuth();
+  const { signIn, checkAdminStatus } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // Sign in using Supabase auth
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (error) {
-        toast({
-          title: "Authentication failed",
-          description: error.message,
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // Check if user is admin after successful login
-      const { data: isUserAdmin, error: adminCheckError } = await supabase.rpc('is_admin', {
-        user_id: data.user.id
-      });
-
-      if (adminCheckError) {
-        console.error("Error checking admin status:", adminCheckError);
-        toast({
-          title: "Authentication error",
-          description: "Error verifying admin privileges. Please try again.",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
+      // Sign in using the AuthContext
+      await signIn(email, password);
+      
+      // After successful login, check if the user is an admin
+      const isUserAdmin = await checkAdminStatus(undefined);
+      
       if (isUserAdmin) {
         navigate("/admin/dashboard");
         toast({
@@ -65,18 +38,17 @@ export default function LoginForm() {
           description: "You don't have administrator privileges",
           variant: "destructive",
         });
-        // Sign out if not admin
-        await supabase.auth.signOut();
+        // Sign out if not admin - handled by AuthContext
       }
       
-      setIsLoading(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login error:", error);
       toast({
         title: "Authentication failed",
-        description: "An unexpected error occurred during login",
+        description: error.message || "An unexpected error occurred during login",
         variant: "destructive",
       });
+    } finally {
       setIsLoading(false);
     }
   };

@@ -11,7 +11,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
-  checkAdminStatus: (userId: string) => Promise<boolean>;
+  checkAdminStatus: (userId?: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,7 +35,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Use setTimeout to prevent Supabase deadlock with auth events
           setTimeout(() => {
             checkAdminStatus(currentSession.user.id)
-              .then(adminStatus => setIsAdmin(adminStatus))
+              .then(adminStatus => {
+                setIsAdmin(adminStatus);
+                if (event === 'SIGNED_IN' && !adminStatus && window.location.pathname.startsWith('/admin')) {
+                  // If user is not admin and tries to access admin pages
+                  navigate('/');
+                }
+              })
               .catch(err => {
                 console.error('Error checking admin status during auth change:', err);
                 setIsAdmin(false);
@@ -54,7 +60,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (currentSession?.user) {
         checkAdminStatus(currentSession.user.id)
-          .then(adminStatus => setIsAdmin(adminStatus))
+          .then(adminStatus => {
+            setIsAdmin(adminStatus);
+            if (!adminStatus && window.location.pathname.startsWith('/admin')) {
+              // If user is not admin and tries to access admin pages
+              navigate('/');
+            }
+          })
           .catch(err => {
             console.error('Error checking initial admin status:', err);
             setIsAdmin(false);
@@ -65,11 +77,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
-  const checkAdminStatus = async (userId: string): Promise<boolean> => {
+  const checkAdminStatus = async (userId?: string): Promise<boolean> => {
     try {
-      const { data, error } = await supabase.rpc('is_admin', { user_id: userId });
+      if (!userId && !user) return false;
+      
+      const idToCheck = userId || user?.id;
+      if (!idToCheck) return false;
+      
+      const { data, error } = await supabase.rpc('is_admin', { user_id: idToCheck });
       if (error) throw error;
       return !!data;
     } catch (error) {
@@ -95,7 +112,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password
     });
     if (error) throw error;
-    navigate('/');
   };
 
   const signOut = async () => {
