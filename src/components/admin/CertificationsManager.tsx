@@ -1,14 +1,14 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Certificate } from "@/types";
-import { Plus, Trash, Edit, Loader2 } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import CertificationForm from "./certifications/CertificationForm";
+import CertificationsTable from "./certifications/CertificationsTable";
 
 export default function CertificationsManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -113,29 +113,6 @@ export default function CertificationsManager() {
     }
   });
 
-  // Delete a certification
-  const deleteCertMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('certifications')
-        .delete()
-        .eq('id', id);
-      
-      if (error) {
-        console.error("Error deleting certification:", error);
-        toast.error("Failed to delete certification");
-        throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['certifications'] });
-      toast.success("Certification deleted successfully!");
-    },
-    onError: () => {
-      toast.error("Error deleting certification");
-    }
-  });
-
   const handleAdd = () => {
     setCurrentCert({
       id: `cert-${Date.now()}`,
@@ -156,26 +133,19 @@ export default function CertificationsManager() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    deleteCertMutation.mutate(id);
-  };
-
-  const handleSave = () => {
-    if (!currentCert) return;
-
+  const handleSave = (cert: Certificate) => {
     if (isEditing) {
       // Update existing certification
-      updateCertMutation.mutate(currentCert);
+      updateCertMutation.mutate(cert);
     } else {
       // Add new certification
-      const { id, ...certWithoutId } = currentCert;
+      const { id, ...certWithoutId } = cert;
       addCertMutation.mutate(certWithoutId);
     }
   };
 
-  const handleInputChange = (field: keyof Certificate, value: string) => {
-    if (!currentCert) return;
-    setCurrentCert({ ...currentCert, [field]: value });
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
   };
 
   const isSubmitting = addCertMutation.isPending || updateCertMutation.isPending;
@@ -196,58 +166,10 @@ export default function CertificationsManager() {
           <p className="text-lg text-muted-foreground">Loading certifications...</p>
         </div>
       ) : (
-        <div className="bg-background rounded-lg shadow-sm border overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b bg-muted/50">
-                  <th className="text-left p-4">Title</th>
-                  <th className="text-left p-4">Issuer</th>
-                  <th className="text-left p-4">Date</th>
-                  <th className="text-left p-4">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {certsList && certsList.length > 0 ? (
-                  certsList.map((cert) => (
-                    <tr key={cert.id} className="border-b">
-                      <td className="p-4">{cert.title}</td>
-                      <td className="p-4">{cert.issuer}</td>
-                      <td className="p-4">{cert.date}</td>
-                      <td className="p-4">
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" onClick={() => handleEdit(cert)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit
-                          </Button>
-                          <Button 
-                            variant="destructive" 
-                            size="sm" 
-                            onClick={() => handleDelete(cert.id)}
-                            disabled={deleteCertMutation.isPending}
-                          >
-                            {deleteCertMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                            ) : (
-                              <Trash className="h-4 w-4 mr-2" />
-                            )}
-                            Delete
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={4} className="p-4 text-center text-muted-foreground">
-                      No certifications found. Add some using the button above.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <CertificationsTable
+          certsList={certsList}
+          onEdit={handleEdit}
+        />
       )}
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -258,69 +180,12 @@ export default function CertificationsManager() {
             </DialogTitle>
           </DialogHeader>
           
-          {currentCert && (
-            <div className="space-y-4 py-3">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Title</label>
-                <Input
-                  value={currentCert.title}
-                  onChange={(e) => handleInputChange('title', e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Issuer</label>
-                <Input
-                  value={currentCert.issuer}
-                  onChange={(e) => handleInputChange('issuer', e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Date</label>
-                <Input
-                  type="date"
-                  value={currentCert.date}
-                  onChange={(e) => handleInputChange('date', e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">URL (optional)</label>
-                <Input
-                  value={currentCert.url || ""}
-                  onChange={(e) => handleInputChange('url', e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Image URL (optional)</label>
-                <Input
-                  value={currentCert.image || ""}
-                  onChange={(e) => handleInputChange('image', e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Description (optional)</label>
-                <Textarea
-                  value={currentCert.description || ""}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
-                  rows={3}
-                />
-              </div>
-            </div>
-          )}
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave} disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              {isEditing ? 'Update' : 'Add'} Certification
-            </Button>
-          </DialogFooter>
+          <CertificationForm
+            certificate={currentCert}
+            onSave={handleSave}
+            onCancel={handleCloseDialog}
+            isSubmitting={isSubmitting}
+          />
         </DialogContent>
       </Dialog>
     </div>
