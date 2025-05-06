@@ -38,25 +38,17 @@ export default function ProjectsManager() {
           description: project.description,
           image: project.image,
           date: project.date,
-          category: project.category,
+          category: project.category as "web" | "mobile" | "backend" | "machine-learning" | "other",
           technologies: project.technologies,
           featured: project.featured,
           demoUrl: project.demourl,
           githubUrl: project.githuburl,
           submissionCount: project.submissioncount
-        }));
+        })) as Project[];
       } catch (error) {
         console.error("Error fetching projects:", error);
         throw error;
       }
-    },
-    onSuccess: (data) => {
-      setProjects(data);
-      setIsLoading(false);
-    },
-    onError: (error) => {
-      console.error("Error fetching projects:", error);
-      setIsLoading(false);
     }
   });
 
@@ -64,6 +56,7 @@ export default function ProjectsManager() {
   useEffect(() => {
     if (fetchedProjects) {
       setProjects(fetchedProjects);
+      setIsLoading(false);
     }
   }, [fetchedProjects]);
 
@@ -237,7 +230,7 @@ export default function ProjectsManager() {
   }
 
   if (isError) {
-    return <ProjectsError onRetry={refetch} />;
+    return <ProjectsError onRetry={() => refetch()} />;
   }
 
   return (

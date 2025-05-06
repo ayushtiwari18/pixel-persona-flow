@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, X, Check } from "lucide-react";
-import { Hackathon } from "@/types/hackathon";
+import { SupabaseHackathon } from "@/types/hackathon";
 import { useForm } from "react-hook-form";
 import { 
   Form,
@@ -18,7 +18,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 interface HackathonFormProps {
-  hackathon?: Hackathon;
+  hackathon?: SupabaseHackathon;
   onCancel: () => void;
   onSuccess: () => void;
 }
