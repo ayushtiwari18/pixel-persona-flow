@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AdminLayout from "@/components/layout/AdminLayout";
 import DashboardOverview from "@/components/admin/DashboardOverview";
@@ -10,10 +10,23 @@ import CodingProfilesManager from "@/components/admin/CodingProfilesManager";
 import ProfileManager from "@/components/admin/ProfileManager";
 import HackathonsManager from "@/components/admin/HackathonsManager";
 import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState("overview");
   const queryClient = useQueryClient();
+  const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
+  
+  // Check authentication status
+  useEffect(() => {
+    if (!user) {
+      navigate("/admin");
+    } else if (!isAdmin) {
+      navigate("/");
+    }
+  }, [user, isAdmin, navigate]);
   
   // Refresh data when tab changes
   const handleTabChange = (value: string) => {
@@ -23,13 +36,25 @@ export default function AdminDashboardPage() {
     if (value === "overview") {
       queryClient.invalidateQueries({ queryKey: ['projects-count'] });
       queryClient.invalidateQueries({ queryKey: ['hackathons-count'] });
+      queryClient.invalidateQueries({ queryKey: ['certifications-count'] });
       queryClient.invalidateQueries({ queryKey: ['recent-activity'] });
     } else if (value === "projects") {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     } else if (value === "hackathons") {
       queryClient.invalidateQueries({ queryKey: ['hackathons'] });
+    } else if (value === "certifications") {
+      queryClient.invalidateQueries({ queryKey: ['certifications'] });
+    } else if (value === "coding") {
+      queryClient.invalidateQueries({ queryKey: ['coding-profiles'] });
+    } else if (value === "profile") {
+      queryClient.invalidateQueries({ queryKey: ['profile-settings'] });
     }
   };
+  
+  // Don't render until authentication check completes
+  if (!user || !isAdmin) {
+    return null;
+  }
   
   return (
     <AdminLayout>

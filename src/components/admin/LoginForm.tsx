@@ -5,37 +5,63 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-
-// Demo credentials (in a real app, these would be stored securely)
-const DEMO_USERNAME = "admin";
-const DEMO_PASSWORD = "password123";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginForm() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API request delay
-    setTimeout(() => {
-      if (username === DEMO_USERNAME && password === DEMO_PASSWORD) {
-        // Store authentication state in localStorage (for demo purposes)
-        localStorage.setItem("isAuthenticated", "true");
-        navigate("/admin/dashboard");
-      } else {
+    try {
+      // Sign in using Supabase auth
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
         toast({
           title: "Authentication failed",
-          description: "Invalid username or password",
+          description: error.message,
           variant: "destructive",
         });
+        setIsLoading(false);
+        return;
       }
+
+      // Check if user is admin after successful login
+      // The isAdmin state will be updated via AuthContext's onAuthStateChange
+      setTimeout(() => {
+        if (isAdmin) {
+          navigate("/admin/dashboard");
+        } else {
+          toast({
+            title: "Access denied",
+            description: "You don't have administrator privileges",
+            variant: "destructive",
+          });
+          // Sign out if not admin
+          supabase.auth.signOut();
+        }
+        setIsLoading(false);
+      }, 1000); // Short delay to allow AuthContext to update
+    } catch (error) {
+      console.error("Login error:", error);
+      toast({
+        title: "Authentication failed",
+        description: "An error occurred during login",
+        variant: "destructive",
+      });
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -48,12 +74,13 @@ export default function LoginForm() {
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="username">Username</Label>
+          <Label htmlFor="email">Email</Label>
           <Input
-            id="username"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            id="email"
+            type="email"
+            placeholder="your@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
@@ -75,8 +102,7 @@ export default function LoginForm() {
         </Button>
       </form>
       <div className="text-center text-sm text-muted-foreground">
-        <p>Demo credentials:</p>
-        <p>Username: admin | Password: password123</p>
+        <p>Please use your admin credentials to log in.</p>
       </div>
     </div>
   );

@@ -1,10 +1,10 @@
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Home, LogOut } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -12,24 +12,25 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children, title = "Admin Dashboard" }: AdminLayoutProps) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { user, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
 
+  // Check authentication and admin status
   useEffect(() => {
-    const authStatus = localStorage.getItem("isAuthenticated");
-    if (authStatus !== "true") {
+    if (!user) {
       navigate("/admin");
-    } else {
-      setIsAuthenticated(true);
+    } else if (!isAdmin) {
+      // If logged in but not admin, redirect to home
+      navigate("/");
     }
-  }, [navigate]);
+  }, [user, isAdmin, navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem("isAuthenticated");
-    navigate("/admin");
+    signOut();
   };
 
-  if (!isAuthenticated) {
+  // Don't render content until we confirm user is authenticated and admin
+  if (!user || !isAdmin) {
     return null;
   }
 
