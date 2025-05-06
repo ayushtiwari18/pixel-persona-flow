@@ -12,6 +12,7 @@ import HackathonsManager from "@/components/admin/HackathonsManager";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -24,6 +25,7 @@ export default function AdminDashboardPage() {
     if (!user) {
       navigate("/admin");
     } else if (!isAdmin) {
+      toast.error("You don't have administrator privileges");
       navigate("/");
     }
   }, [user, isAdmin, navigate]);
@@ -40,6 +42,8 @@ export default function AdminDashboardPage() {
       queryClient.invalidateQueries({ queryKey: ['recent-activity'] });
     } else if (value === "projects") {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
+    } else if (value === "blog") {
+      queryClient.invalidateQueries({ queryKey: ['blog-posts'] });  
     } else if (value === "hackathons") {
       queryClient.invalidateQueries({ queryKey: ['hackathons'] });
     } else if (value === "certifications") {
@@ -50,6 +54,14 @@ export default function AdminDashboardPage() {
       queryClient.invalidateQueries({ queryKey: ['profile-settings'] });
     }
   };
+  
+  // Initial data refresh when component mounts
+  useEffect(() => {
+    if (user && isAdmin) {
+      // Initial data load based on active tab
+      handleTabChange(activeTab);
+    }
+  }, [user, isAdmin]); // eslint-disable-line react-hooks/exhaustive-deps
   
   // Don't render until authentication check completes
   if (!user || !isAdmin) {

@@ -22,7 +22,7 @@ export default function LoginForm() {
 
     try {
       // Sign in using Supabase auth
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
@@ -38,26 +38,43 @@ export default function LoginForm() {
       }
 
       // Check if user is admin after successful login
-      // The isAdmin state will be updated via AuthContext's onAuthStateChange
-      setTimeout(() => {
-        if (isAdmin) {
-          navigate("/admin/dashboard");
-        } else {
-          toast({
-            title: "Access denied",
-            description: "You don't have administrator privileges",
-            variant: "destructive",
-          });
-          // Sign out if not admin
-          supabase.auth.signOut();
-        }
+      const { data: isUserAdmin, error: adminCheckError } = await supabase.rpc('is_admin', {
+        user_id: data.user.id
+      });
+
+      if (adminCheckError) {
+        console.error("Error checking admin status:", adminCheckError);
+        toast({
+          title: "Authentication error",
+          description: "Error verifying admin privileges. Please try again.",
+          variant: "destructive",
+        });
         setIsLoading(false);
-      }, 1000); // Short delay to allow AuthContext to update
+        return;
+      }
+
+      if (isUserAdmin) {
+        navigate("/admin/dashboard");
+        toast({
+          title: "Welcome back",
+          description: "You've successfully logged in as administrator",
+        });
+      } else {
+        toast({
+          title: "Access denied",
+          description: "You don't have administrator privileges",
+          variant: "destructive",
+        });
+        // Sign out if not admin
+        await supabase.auth.signOut();
+      }
+      
+      setIsLoading(false);
     } catch (error) {
       console.error("Login error:", error);
       toast({
         title: "Authentication failed",
-        description: "An error occurred during login",
+        description: "An unexpected error occurred during login",
         variant: "destructive",
       });
       setIsLoading(false);

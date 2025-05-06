@@ -1,10 +1,11 @@
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Home, LogOut } from "lucide-react";
+import { Home, LogOut, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -12,25 +13,54 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children, title = "Admin Dashboard" }: AdminLayoutProps) {
-  const { user, signOut, isAdmin } = useAuth();
+  const { user, signOut, isAdmin, checkAdminStatus } = useAuth();
+  const [isVerifying, setIsVerifying] = useState(true);
   const navigate = useNavigate();
 
   // Check authentication and admin status
   useEffect(() => {
-    if (!user) {
-      navigate("/admin");
-    } else if (!isAdmin) {
-      // If logged in but not admin, redirect to home
-      navigate("/");
-    }
-  }, [user, isAdmin, navigate]);
+    const verifyAccess = async () => {
+      if (!user) {
+        navigate("/admin");
+        return;
+      }
+      
+      // Verify admin status directly (in case context isn't updated yet)
+      try {
+        const adminStatus = await checkAdminStatus(user.id);
+        if (!adminStatus) {
+          toast.error("You don't have administrator privileges");
+          signOut();
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("Error verifying admin status:", error);
+        toast.error("Error verifying access privileges");
+        navigate("/admin");
+      } finally {
+        setIsVerifying(false);
+      }
+    };
+
+    verifyAccess();
+  }, [user, isAdmin, navigate, signOut, checkAdminStatus]);
 
   const handleLogout = () => {
+    toast.success("You have been logged out");
     signOut();
   };
 
+  // Show loading indicator while verifying access
+  if (isVerifying) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   // Don't render content until we confirm user is authenticated and admin
-  if (!user || !isAdmin) {
+  if (!user) {
     return null;
   }
 

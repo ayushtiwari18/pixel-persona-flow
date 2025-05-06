@@ -11,6 +11,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
+  checkAdminStatus: (userId: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,7 +32,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Check admin status when auth state changes
         if (currentSession?.user) {
-          checkAdminStatus(currentSession.user.id);
+          // Use setTimeout to prevent Supabase deadlock with auth events
+          setTimeout(() => {
+            checkAdminStatus(currentSession.user.id)
+              .then(adminStatus => setIsAdmin(adminStatus))
+              .catch(err => {
+                console.error('Error checking admin status during auth change:', err);
+                setIsAdmin(false);
+              });
+          }, 0);
         } else {
           setIsAdmin(false);
         }
@@ -42,8 +51,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
+      
       if (currentSession?.user) {
-        checkAdminStatus(currentSession.user.id);
+        checkAdminStatus(currentSession.user.id)
+          .then(adminStatus => setIsAdmin(adminStatus))
+          .catch(err => {
+            console.error('Error checking initial admin status:', err);
+            setIsAdmin(false);
+          });
       }
     });
 
@@ -52,14 +67,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const checkAdminStatus = async (userId: string) => {
+  const checkAdminStatus = async (userId: string): Promise<boolean> => {
     try {
       const { data, error } = await supabase.rpc('is_admin', { user_id: userId });
       if (error) throw error;
-      setIsAdmin(!!data);
+      return !!data;
     } catch (error) {
       console.error('Error checking admin status:', error);
-      setIsAdmin(false);
+      return false;
     }
   };
 
@@ -90,7 +105,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, signUp, signIn, signOut, isAdmin }}>
+    <AuthContext.Provider value={{ 
+      session, 
+      user, 
+      signUp, 
+      signIn, 
+      signOut, 
+      isAdmin,
+      checkAdminStatus 
+    }}>
       {children}
     </AuthContext.Provider>
   );
