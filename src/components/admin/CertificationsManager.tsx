@@ -57,8 +57,7 @@ export default function CertificationsManager() {
           image: cert.image || null,
           description: cert.description || null
         }])
-        .select()
-        .single();
+        .select();
       
       if (error) {
         console.error("Error adding certification:", error);
@@ -66,7 +65,7 @@ export default function CertificationsManager() {
         throw error;
       }
       
-      return data;
+      return data?.[0] || null;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['certifications'] });
@@ -81,7 +80,7 @@ export default function CertificationsManager() {
   // Update an existing certification
   const updateCertMutation = useMutation({
     mutationFn: async (cert: Certificate) => {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('certifications')
         .update({
           title: cert.title,
@@ -91,9 +90,7 @@ export default function CertificationsManager() {
           image: cert.image || null,
           description: cert.description || null
         })
-        .eq('id', cert.id)
-        .select()
-        .single();
+        .eq('id', cert.id);
       
       if (error) {
         console.error("Error updating certification:", error);
@@ -101,7 +98,7 @@ export default function CertificationsManager() {
         throw error;
       }
       
-      return data;
+      return cert;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['certifications'] });

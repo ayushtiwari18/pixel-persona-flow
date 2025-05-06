@@ -1,280 +1,293 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Plus, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Project } from "@/types";
-import { Plus, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { projects as localProjects } from "@/data/projects";
 import ProjectForm from "./projects/ProjectForm";
+import EmptyProjects from "./projects/EmptyProjects";
 import ProjectsLoading from "./projects/ProjectsLoading";
 import ProjectsError from "./projects/ProjectsError";
-import EmptyProjects from "./projects/EmptyProjects";
 
 export default function ProjectsManager() {
-  const [projectsList, setProjectsList] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string>("");
   const queryClient = useQueryClient();
 
   // Fetch projects from Supabase
-  const { data: projects, isLoading, error, refetch } = useQuery({
+  const { data: fetchedProjects, isError, refetch } = useQuery({
     queryKey: ['projects'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .order('date', { ascending: false });
-      
-      if (error) {
-        console.error("Error fetching projects:", error);
-        toast.error("Failed to load projects");
-        // Fallback to local data if Supabase query fails
-        return localProjects;
-      }
-      
-      // Map Supabase data to our Project type
-      return data.map(project => ({
-        id: project.id,
-        title: project.title,
-        description: project.description,
-        image: project.image,
-        demoUrl: project.demourl || undefined,
-        githubUrl: project.githuburl || undefined,
-        technologies: project.technologies || [],
-        category: project.category as "web" | "mobile" | "backend" | "machine-learning" | "other",
-        featured: project.featured,
-        date: project.date,
-        submissionCount: project.submissioncount || undefined
-      }));
-    }
-  });
-
-  // Update state when data is fetched
-  useEffect(() => {
-    if (projects) {
-      setProjectsList(projects);
-    }
-  }, [projects]);
-
-  // Create a new project
-  const createProjectMutation = useMutation({
-    mutationFn: async (newProject: Omit<Project, "id">) => {
-      const { data, error } = await supabase
-        .from('projects')
-        .insert([{
-          title: newProject.title,
-          description: newProject.description,
-          image: newProject.image,
-          demourl: newProject.demoUrl,
-          githuburl: newProject.githubUrl,
-          technologies: newProject.technologies,
-          category: newProject.category,
-          featured: newProject.featured,
-          date: newProject.date,
-          submissioncount: newProject.submissionCount
-        }])
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
-      toast.success("Project created successfully!");
-    },
-    onError: (error) => {
-      console.error("Error creating project:", error);
-      toast.error("Failed to create project");
-    }
-  });
-
-  // Update an existing project
-  const updateProjectMutation = useMutation({
-    mutationFn: async (project: Project) => {
-      const { data, error } = await supabase
-        .from('projects')
-        .update({
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*')
+          .order('date', { ascending: false });
+        
+        if (error) {
+          throw error;
+        }
+        
+        // Format data to match Project type
+        return data.map((project) => ({
+          id: project.id,
           title: project.title,
           description: project.description,
           image: project.image,
-          demourl: project.demoUrl,
-          githuburl: project.githubUrl,
-          technologies: project.technologies,
-          category: project.category,
-          featured: project.featured,
           date: project.date,
-          submissioncount: project.submissionCount
-        })
-        .eq('id', project.id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+          category: project.category,
+          technologies: project.technologies,
+          featured: project.featured,
+          demoUrl: project.demourl,
+          githubUrl: project.githuburl,
+          submissionCount: project.submissioncount
+        }));
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+        throw error;
+      }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
-      toast.success("Project updated successfully!");
+    onSuccess: (data) => {
+      setProjects(data);
+      setIsLoading(false);
     },
     onError: (error) => {
-      console.error("Error updating project:", error);
-      toast.error("Failed to update project");
+      console.error("Error fetching projects:", error);
+      setIsLoading(false);
     }
   });
 
-  // Delete a project
-  const deleteProjectMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('projects')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
-      return id;
+  // Update the local state when data is fetched
+  useEffect(() => {
+    if (fetchedProjects) {
+      setProjects(fetchedProjects);
+    }
+  }, [fetchedProjects]);
+
+  // Update project mutation
+  const updateProjectMutation = useMutation({
+    mutationFn: async (project: Project) => {
+      try {
+        // Format project data to match Supabase schema
+        const { data, error } = await supabase
+          .from('projects')
+          .update({
+            title: project.title,
+            description: project.description,
+            image: project.image,
+            date: project.date,
+            category: project.category,
+            technologies: project.technologies,
+            featured: project.featured,
+            demourl: project.demoUrl,
+            githuburl: project.githubUrl,
+            submissioncount: project.submissionCount
+          })
+          .eq('id', project.id);
+        
+        if (error) {
+          console.error("Error updating project:", error);
+          throw error;
+        }
+        
+        return project;
+      } catch (error) {
+        console.error("Error updating project:", error);
+        throw error;
+      }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
-      toast.success("Project deleted successfully!");
+    onError: (error) => {
+      console.error("Error updating project:", error);
+    }
+  });
+
+  // Delete project mutation
+  const deleteProjectMutation = useMutation({
+    mutationFn: async (projectId: string) => {
+      try {
+        const { error } = await supabase
+          .from('projects')
+          .delete()
+          .eq('id', projectId);
+        
+        if (error) throw error;
+        return projectId;
+      } catch (error) {
+        console.error("Error deleting project:", error);
+        throw error;
+      }
+    },
+    onSuccess: (projectId) => {
+      setProjects(projects.filter(p => p.id !== projectId));
+      setDeletingId("");
+      toast.success("Project deleted successfully");
     },
     onError: (error) => {
       console.error("Error deleting project:", error);
+      setDeletingId("");
       toast.error("Failed to delete project");
     }
   });
 
-  const handleEdit = (index: number, field: keyof Project, value: any) => {
-    const updated = [...projectsList];
-    updated[index] = { ...updated[index], [field]: value };
-    setProjectsList(updated);
+  const handleAddProject = () => {
+    const newProject: Project = {
+      id: `project-${Date.now()}`,
+      title: "New Project",
+      description: "",
+      image: "/placeholder.svg",
+      date: new Date().toISOString().split('T')[0],
+      category: "web",
+      technologies: [],
+      featured: false
+    };
+    setProjects([...projects, newProject]);
+  };
+
+  const handleEditProject = (index: number, field: keyof Project, value: any) => {
+    const updatedProjects = [...projects];
+    updatedProjects[index] = { ...updatedProjects[index], [field]: value };
+    setProjects(updatedProjects);
   };
 
   const handleTechnologiesChange = (index: number, value: string) => {
-    const updated = [...projectsList];
-    updated[index] = { 
-      ...updated[index], 
-      technologies: value.split(",").map(tech => tech.trim()) 
+    const updatedProjects = [...projects];
+    updatedProjects[index] = { 
+      ...updatedProjects[index], 
+      technologies: value.split(",").map(tech => tech.trim()).filter(Boolean)
     };
-    setProjectsList(updated);
+    setProjects(updatedProjects);
   };
 
-  const handleDelete = (index: number) => {
-    const projectId = projectsList[index].id;
+  const handleDeleteProject = (index: number) => {
+    const projectId = projects[index].id;
+    
+    // If it's a new project (not saved to DB yet)
+    if (projectId.startsWith('project-')) {
+      const updatedProjects = [...projects];
+      updatedProjects.splice(index, 1);
+      setProjects(updatedProjects);
+      return;
+    }
+    
+    // Otherwise delete from database
+    setDeletingId(projectId);
     deleteProjectMutation.mutate(projectId);
   };
 
-  const handleAdd = () => {
-    const newProject: Omit<Project, "id"> = {
-      title: "New Project",
-      description: "Project description",
-      image: "/placeholder.svg",
-      technologies: [],
-      category: "web",
-      featured: false,
-      date: new Date().toISOString().split('T')[0],
-    };
-
-    createProjectMutation.mutate(newProject);
-  };
-
-  const handleSave = () => {
-    // Update all projects that have been modified
-    const savePromises = projectsList.map(project => {
-      return updateProjectMutation.mutateAsync(project);
-    });
-
-    Promise.all(savePromises)
-      .then(() => {
-        toast.success("All projects saved successfully!");
-      })
-      .catch((error) => {
-        console.error("Error saving projects:", error);
-        toast.error("Failed to save all projects");
-      });
+  const handleSaveProjects = async () => {
+    try {
+      setIsSubmitting(true);
+      
+      // Filter out projects that need to be created vs updated
+      const existingProjects = projects.filter(p => !p.id.startsWith('project-'));
+      const newProjects = projects.filter(p => p.id.startsWith('project-'));
+      
+      // Update existing projects
+      if (existingProjects.length > 0) {
+        await Promise.all(
+          existingProjects.map(project => 
+            updateProjectMutation.mutateAsync(project)
+          )
+        );
+      }
+      
+      // Create new projects
+      if (newProjects.length > 0) {
+        const { data, error } = await supabase
+          .from('projects')
+          .insert(
+            newProjects.map(project => ({
+              title: project.title,
+              description: project.description,
+              image: project.image,
+              date: project.date,
+              category: project.category,
+              technologies: project.technologies,
+              featured: project.featured,
+              demourl: project.demoUrl,
+              githuburl: project.githubUrl,
+              submissioncount: project.submissionCount
+            }))
+          );
+          
+        if (error) {
+          console.error("Error saving projects:", error);
+          toast.error("Failed to save new projects");
+          setIsSubmitting(false);
+          return;
+        }
+      }
+      
+      // Refetch projects to get the updated list with new IDs
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      toast.success("Projects saved successfully!");
+    } catch (error) {
+      console.error("Error saving projects:", error);
+      toast.error("Failed to save projects");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isLoading) {
     return <ProjectsLoading />;
   }
 
-  if (error) {
-    return <ProjectsError error={error as Error} refetch={refetch} />;
-  }
-
-  if (!projectsList.length) {
-    return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Manage Projects</h2>
-          <Button onClick={handleAdd} disabled={createProjectMutation.isPending}>
-            {createProjectMutation.isPending ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Creating...
-              </>
-            ) : (
-              <>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Project
-              </>
-            )}
-          </Button>
-        </div>
-        <EmptyProjects />
-      </div>
-    );
+  if (isError) {
+    return <ProjectsError onRetry={refetch} />;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Manage Projects</h2>
-        <Button onClick={handleAdd} disabled={createProjectMutation.isPending}>
-          {createProjectMutation.isPending ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Creating...
-            </>
-          ) : (
-            <>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Project
-            </>
-          )}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={handleAddProject}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Project
+          </Button>
+          <Button
+            onClick={handleSaveProjects}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4 mr-2" />
+                Save All
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
-      <div className="space-y-6">
-        {projectsList.map((project, i) => (
-          <ProjectForm 
-            key={project.id}
-            project={project}
-            index={i}
-            onEdit={handleEdit}
-            onTechnologiesChange={handleTechnologiesChange}
-            onDelete={handleDelete}
-            isDeleting={deleteProjectMutation.isPending}
-            deletingId={deleteProjectMutation.variables}
-          />
-        ))}
-      </div>
-
-      {projectsList.length > 0 && (
-        <Button 
-          size="lg" 
-          onClick={handleSave}
-          disabled={updateProjectMutation.isPending}
-        >
-          {updateProjectMutation.isPending ? (
-            <>
-              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-              Saving...
-            </>
-          ) : (
-            "Save All Changes"
-          )}
-        </Button>
+      {projects.length === 0 ? (
+        <EmptyProjects onAddProject={handleAddProject} />
+      ) : (
+        <div className="space-y-6">
+          {projects.map((project, index) => (
+            <ProjectForm
+              key={project.id}
+              project={project}
+              index={index}
+              onEdit={handleEditProject}
+              onTechnologiesChange={handleTechnologiesChange}
+              onDelete={handleDeleteProject}
+              isDeleting={deletingId === project.id}
+              deletingId={deletingId}
+            />
+          ))}
+        </div>
       )}
     </div>
   );
