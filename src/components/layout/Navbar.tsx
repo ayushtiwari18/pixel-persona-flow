@@ -1,98 +1,135 @@
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
-import { siteConfig } from "@/data/site-config";
-import { Menu, X } from "lucide-react";
-import ThemeToggle from "@/components/ThemeToggle";
-import { NavbarLink } from "./navbar/NavbarLink";
-import { MobileMenu } from "./navbar/MobileMenu";
-import { UserMenu } from "./navbar/UserMenu";
-import { SocialLinks } from "./navbar/SocialLinks";
-
-const navItems = [
-  { title: "Home", href: "/" },
-  { title: "About", href: "/about" },
-  { title: "Projects", href: "/projects" },
-  { title: "Hackathons", href: "/hackathons" },
-  { title: "Blog", href: "/blog" },
-  { title: "Contact", href: "/contact" }
-];
+import { ThemeToggle } from "@/components/ThemeToggle";
+import MobileMenu from "./navbar/MobileMenu";
+import NavbarLink from "./navbar/NavbarLink";
+import SocialLinks from "./navbar/SocialLinks";
+import UserMenu from "./navbar/UserMenu";
+import { useSiteConfigContext } from "@/components/SiteConfigProvider";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user } = useAuth();
+  const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
-  const { pathname } = useLocation();
+  const { config } = useSiteConfigContext();
 
+  // Update scrolled state based on window scroll position
   useEffect(() => {
     const handleScroll = () => {
-      const offset = window.scrollY;
-      setScrolled(offset > 10);
+      const isScrolled = window.scrollY > 20;
+      setScrolled(isScrolled);
     };
 
+    // Initialize scroll state
+    handleScroll();
+
+    // Add event listener
     window.addEventListener("scroll", handleScroll);
+
+    // Cleanup 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Set up realtime subscription to navigation menu changes
   useEffect(() => {
-    setIsMenuOpen(false);
-  }, [pathname]);
+    const channel = supabase
+      .channel('navigation-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'navigation_items'
+        },
+        (payload) => {
+          console.log('Navigation items changed:', payload);
+          // Would re-fetch navigation from Supabase here
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   return (
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        scrolled ? "bg-background/80 backdrop-blur-md shadow-sm" : "bg-transparent"
-      )}
+      transition={{ duration: 0.5 }}
+      className={`fixed top-0 left-0 right-0 z-50 py-4 ${
+        scrolled ? "bg-background/80 backdrop-blur-lg shadow-sm" : "bg-transparent"
+      } transition-all duration-300`}
     >
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-6 md:gap-10">
-          <Link to="/" className="flex items-center space-x-2">
-            <span className="font-display text-xl font-bold">
-              {siteConfig.name}
-            </span>
-          </Link>
-          <nav className="hidden md:flex md:gap-6">
-            {navItems.map((item) => (
-              <NavbarLink
-                key={item.href}
-                href={item.href}
-                isActive={pathname === item.href}
-              >
-                {item.title}
-              </NavbarLink>
-            ))}
-          </nav>
+      <div className="container flex items-center justify-between">
+        <Link
+          to="/"
+          className={`text-xl font-bold ${
+            scrolled ? "text-foreground" : "text-foreground"
+          } transition-colors`}
+        >
+          {config.name || "Portfolio"}
+        </Link>
+
+        <div className="hidden md:flex items-center space-x-1">
+          <NavbarLink to="/" isActive={location.pathname === "/"}>
+            Home
+          </NavbarLink>
+          <NavbarLink to="/about" isActive={location.pathname === "/about"}>
+            About
+          </NavbarLink>
+          <NavbarLink
+            to="/projects"
+            isActive={location.pathname.includes("/projects")}
+          >
+            Projects
+          </NavbarLink>
+          <NavbarLink
+            to="/hackathons"
+            isActive={location.pathname === "/hackathons"}
+          >
+            Hackathons
+          </NavbarLink>
+          <NavbarLink
+            to="/certifications"
+            isActive={location.pathname === "/certifications"}
+          >
+            Certifications
+          </NavbarLink>
+          <NavbarLink
+            to="/coding-profile"
+            isActive={location.pathname === "/coding-profile"}
+          >
+            Coding Profiles
+          </NavbarLink>
+          <NavbarLink
+            to="/blog"
+            isActive={location.pathname.includes("/blog")}
+          >
+            Blog
+          </NavbarLink>
+          <NavbarLink
+            to="/contact"
+            isActive={location.pathname === "/contact"}
+          >
+            Contact
+          </NavbarLink>
         </div>
 
-        <div className="flex items-center gap-4">
-          <ThemeToggle />
-          <UserMenu />
+        <div className="flex items-center space-x-2">
           <SocialLinks />
-          <button
-            className="flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground md:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {isMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </button>
+          <ThemeToggle />
+          {user && <UserMenu />}
+          <div className="md:hidden">
+            <MobileMenu />
+          </div>
         </div>
       </div>
-
-      <MobileMenu
-        isOpen={isMenuOpen}
-        navItems={navItems}
-        currentPath={pathname}
-        onClose={() => setIsMenuOpen(false)}
-      />
     </motion.header>
   );
 }

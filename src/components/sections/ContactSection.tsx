@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function ContactSection() {
   const { toast } = useToast();
@@ -31,37 +32,56 @@ export default function ContactSection() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    
     try {
-      const res = await fetch(formEndpoint, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-        },
-        body: new FormData(e.target as HTMLFormElement),
-      });
-      const data = await res.json();
-      if (data.ok || data.success) {
-        toast({
-          title: "Message sent!",
-          description: "Thank you for your message. I'll get back to you soon.",
+      // First try to save the contact message to Supabase
+      const { error: supabaseError } = await supabase
+        .from('contact_messages')
+        .insert([
+          { 
+            name: formData.name, 
+            email: formData.email, 
+            subject: formData.subject, 
+            message: formData.message 
+          }
+        ])
+        .select();
+      
+      // If Supabase fails, fall back to formspree
+      if (supabaseError) {
+        console.log("Falling back to formspree:", supabaseError);
+        
+        const res = await fetch(formEndpoint, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+          },
+          body: new FormData(e.target as HTMLFormElement),
         });
-        setFormData({
-          name: "",
-          email: "",
-          subject: "",
-          message: ""
-        });
-      } else {
-        toast({
-          title: "Oops! Something went wrong.",
-          description: data.error || "Please try again or email me directly.",
-          variant: "destructive",
-        });
+        const data = await res.json();
+        
+        if (!data.ok && !data.success) {
+          throw new Error(data.error || "Failed to submit form");
+        }
       }
+      
+      // Success message
+      toast({
+        title: "Message sent!",
+        description: "Thank you for your message. I'll get back to you soon.",
+      });
+      
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        message: ""
+      });
     } catch (err: any) {
       toast({
-        title: "Network error!",
-        description: "Couldn't send your message. Please try again.",
+        title: "Error!",
+        description: err.message || "Couldn't send your message. Please try again.",
         variant: "destructive",
       });
     } finally {

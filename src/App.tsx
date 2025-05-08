@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { SiteConfigProvider } from "@/components/SiteConfigProvider";
 import HomePage from "./pages/HomePage";
 import AuthPage from "./pages/AuthPage";
 import AboutPage from "./pages/AboutPage";
@@ -26,38 +27,47 @@ import AdminHackathonsPage from "./pages/admin/AdminHackathonsPage";
 import NotFound from "./pages/NotFound";
 import HackathonsPage from "./pages/HackathonsPage";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1
+    }
+  }
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
       <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/projects" element={<ProjectsPage />} />
-            <Route path="/projects/:id" element={<ProjectDetailPage />} />
-            <Route path="/blog" element={<BlogPage />} />
-            <Route path="/blog/:slug" element={<BlogPostPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/certifications" element={<CertificationsPage />} />
-            <Route path="/coding-profile" element={<CodingProfilePage />} />
-            <Route path="/hackathons" element={<HackathonsPage />} />
-            <Route path="/admin" element={<AdminLoginPage />} />
-            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-            <Route path="/admin/projects" element={<AdminProjectsPage />} />
-            <Route path="/admin/blog" element={<AdminBlogPage />} />
-            <Route path="/admin/certifications" element={<AdminCertificationsPage />} />
-            <Route path="/admin/hackathons" element={<AdminHackathonsPage />} />
-            <Route path="/admin/coding-profiles" element={<AdminCodingProfilesPage />} />
-            <Route path="/admin/profile" element={<AdminProfilePage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </TooltipProvider>
+        <SiteConfigProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/projects" element={<ProjectsPage />} />
+              <Route path="/projects/:id" element={<ProjectDetailPage />} />
+              <Route path="/blog" element={<BlogPage />} />
+              <Route path="/blog/:slug" element={<BlogPostPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/certifications" element={<CertificationsPage />} />
+              <Route path="/coding-profile" element={<CodingProfilePage />} />
+              <Route path="/hackathons" element={<HackathonsPage />} />
+              <Route path="/admin" element={<AdminLoginPage />} />
+              <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+              <Route path="/admin/projects" element={<AdminProjectsPage />} />
+              <Route path="/admin/blog" element={<AdminBlogPage />} />
+              <Route path="/admin/certifications" element={<AdminCertificationsPage />} />
+              <Route path="/admin/hackathons" element={<AdminHackathonsPage />} />
+              <Route path="/admin/coding-profiles" element={<AdminCodingProfilesPage />} />
+              <Route path="/admin/profile" element={<AdminProfilePage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </TooltipProvider>
+        </SiteConfigProvider>
       </AuthProvider>
     </BrowserRouter>
   </QueryClientProvider>
