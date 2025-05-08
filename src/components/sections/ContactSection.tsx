@@ -18,7 +18,8 @@ export default function ContactSection() {
     subject: "",
     message: ""
   });
-  const formEndpoint = siteConfig.formEndpoint || "https://formspree.io/f/your-default-endpoint";
+  const formEndpoint =
+    siteConfig.formEndpoint || "https://formspree.io/f/mgvkylno";
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -77,9 +78,12 @@ export default function ContactSection() {
           transition={{ duration: 0.5 }}
           className="mb-12 text-center"
         >
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">Get In Touch</h2>
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+            Get In Touch
+          </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Have a project in mind or want to discuss potential opportunities? Feel free to reach out!
+            Have a project in mind or want to discuss potential opportunities?
+            Feel free to reach out!
           </p>
         </motion.div>
 
@@ -101,18 +105,18 @@ export default function ContactSection() {
                     href="mailto:contact@example.com"
                     className="text-muted-foreground hover:text-primary transition-colors"
                   >
-                    contact@example.com
+                    ayushtiwari102003@gmail.com
                   </a>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-4">
                 <div className="bg-primary/10 p-3 rounded-full">
                   <Phone className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <h4 className="font-medium">Phone</h4>
-                  <p className="text-muted-foreground">+1 (555) 123-4567</p>
+                  <p className="text-muted-foreground">+91 9301742572 </p>
                 </div>
               </div>
 
@@ -161,7 +165,10 @@ export default function ContactSection() {
                   className="w-full mt-2 flex items-center gap-2"
                 >
                   <a
-                    href={siteConfig.resume}
+                    href={
+                      siteConfig.resume ||
+                      "https://drive.google.com/file/d/1n5ZUWJ0DbY3B6N8SyfugTKysaPfMjP_U/view?usp=sharing"
+                    }
                     download
                     target="_blank"
                     rel="noopener noreferrer"

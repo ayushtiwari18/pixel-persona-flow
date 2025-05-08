@@ -12,6 +12,7 @@ export const siteConfig: SiteConfig = {
     twitter: "https://twitter.com/_aayush_03__",
     dribbble: "", // Leave empty or add if you have a Dribbble
   },
-  resume: "/Ayush CV 2025.pdf", // You can change path if hosted elsewhere
-  formEndpoint: "https://formspree.io/f/moqojlpo", // Replace with your own Formspree endpoint if needed
+  resume:
+    "https://drive.google.com/file/d/1n5ZUWJ0DbY3B6N8SyfugTKysaPfMjP_U/view?usp=drive_link", // You can change path if hosted elsewhere
+  formEndpoint: "https://formspree.io/f/mgvkylno", // Replace with your own Formspree endpoint if needed
 };
