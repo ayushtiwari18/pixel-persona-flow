@@ -2,6 +2,7 @@
 import { SiteConfig } from "@/types";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 // Default config as fallback
 export const siteConfig: SiteConfig = {
@@ -23,11 +24,9 @@ export const siteConfig: SiteConfig = {
 
 // Hook for fetching dynamic site config from Supabase
 export function useSiteConfig() {
-  const [config, setConfig] = useState<SiteConfig>(siteConfig);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchConfig = async () => {
+  const { data: profileSettings, isLoading, refetch } = useQuery({
+    queryKey: ['site-config'],
+    queryFn: async () => {
       try {
         const { data, error } = await supabase
           .from('profile_settings')
@@ -37,55 +36,32 @@ export function useSiteConfig() {
         
         if (error) {
           console.error("Error fetching site config:", error);
-          return;
+          throw error;
         }
         
-        if (data) {
-          setConfig({
-            name: data.name || siteConfig.name,
-            title: data.title || siteConfig.title,
-            description: data.description || siteConfig.description,
-            url: siteConfig.url,
-            links: {
-              github: data.github_url || siteConfig.links.github,
-              linkedin: data.linkedin_url || siteConfig.links.linkedin,
-              twitter: data.twitter_url || siteConfig.links.twitter,
-              dribbble: siteConfig.links.dribbble,
-            },
-            resume: data.resume_url || siteConfig.resume,
-            formEndpoint: data.form_endpoint || siteConfig.formEndpoint,
-          });
-        }
+        return data;
       } catch (err) {
         console.error("Error in useSiteConfig:", err);
-      } finally {
-        setIsLoading(false);
+        return null;
       }
-    };
+    }
+  });
 
-    fetchConfig();
+  // Create the final config by merging the database values with defaults
+  const config: SiteConfig = {
+    name: profileSettings?.name || siteConfig.name,
+    title: profileSettings?.title || siteConfig.title,
+    description: profileSettings?.description || siteConfig.description,
+    url: siteConfig.url,
+    links: {
+      github: profileSettings?.github_url || siteConfig.links.github,
+      linkedin: profileSettings?.linkedin_url || siteConfig.links.linkedin,
+      twitter: profileSettings?.twitter_url || siteConfig.links.twitter,
+      dribbble: siteConfig.links.dribbble,
+    },
+    resume: profileSettings?.resume_url || siteConfig.resume,
+    formEndpoint: profileSettings?.form_endpoint || siteConfig.formEndpoint,
+  };
 
-    // Set up realtime subscription
-    const channel = supabase
-      .channel('profile-settings-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'profile_settings'
-        },
-        (payload) => {
-          console.log('Profile settings changed:', payload);
-          fetchConfig();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  return { config, isLoading };
+  return { config, isLoading, refetch };
 }

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Github, Linkedin, Twitter, Mail, Phone, Download } from "lucide-react";
@@ -34,18 +33,15 @@ export default function ContactSection() {
     setIsSubmitting(true);
     
     try {
-      // First try to save the contact message to Supabase
+      // Try to save the contact message to Supabase
       const { error: supabaseError } = await supabase
         .from('contact_messages')
-        .insert([
-          { 
-            name: formData.name, 
-            email: formData.email, 
-            subject: formData.subject, 
-            message: formData.message 
-          }
-        ])
-        .select();
+        .insert([{ 
+          name: formData.name, 
+          email: formData.email, 
+          subject: formData.subject, 
+          message: formData.message 
+        }]);
       
       // If Supabase fails, fall back to formspree
       if (supabaseError) {

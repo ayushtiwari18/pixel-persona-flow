@@ -2,11 +2,11 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import MobileMenu from "./navbar/MobileMenu";
-import NavbarLink from "./navbar/NavbarLink";
-import SocialLinks from "./navbar/SocialLinks";
-import UserMenu from "./navbar/UserMenu";
+import ThemeToggle from "@/components/ThemeToggle";
+import { MobileMenu } from "./navbar/MobileMenu";
+import { NavbarLink } from "./navbar/NavbarLink";
+import { SocialLinks } from "./navbar/SocialLinks";
+import { UserMenu } from "./navbar/UserMenu";
 import { useSiteConfigContext } from "@/components/SiteConfigProvider";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
