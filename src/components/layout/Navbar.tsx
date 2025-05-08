@@ -77,44 +77,44 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden md:flex items-center space-x-1">
-          <NavbarLink to="/" isActive={location.pathname === "/"}>
+          <NavbarLink href="/" isActive={location.pathname === "/"}>
             Home
           </NavbarLink>
-          <NavbarLink to="/about" isActive={location.pathname === "/about"}>
+          <NavbarLink href="/about" isActive={location.pathname === "/about"}>
             About
           </NavbarLink>
           <NavbarLink
-            to="/projects"
+            href="/projects"
             isActive={location.pathname.includes("/projects")}
           >
             Projects
           </NavbarLink>
           <NavbarLink
-            to="/hackathons"
+            href="/hackathons"
             isActive={location.pathname === "/hackathons"}
           >
             Hackathons
           </NavbarLink>
           <NavbarLink
-            to="/certifications"
+            href="/certifications"
             isActive={location.pathname === "/certifications"}
           >
             Certifications
           </NavbarLink>
           <NavbarLink
-            to="/coding-profile"
+            href="/coding-profile"
             isActive={location.pathname === "/coding-profile"}
           >
             Coding Profiles
           </NavbarLink>
           <NavbarLink
-            to="/blog"
+            href="/blog"
             isActive={location.pathname.includes("/blog")}
           >
             Blog
           </NavbarLink>
           <NavbarLink
-            to="/contact"
+            href="/contact"
             isActive={location.pathname === "/contact"}
           >
             Contact
@@ -126,7 +126,21 @@ export default function Navbar() {
           <ThemeToggle />
           {user && <UserMenu />}
           <div className="md:hidden">
-            <MobileMenu />
+            <MobileMenu
+              isOpen={false}
+              navItems={[
+                { href: "/", title: "Home" },
+                { href: "/about", title: "About" },
+                { href: "/projects", title: "Projects" },
+                { href: "/hackathons", title: "Hackathons" },
+                { href: "/certifications", title: "Certifications" },
+                { href: "/coding-profile", title: "Coding Profiles" },
+                { href: "/blog", title: "Blog" },
+                { href: "/contact", title: "Contact" },
+              ]}
+              currentPath={location.pathname}
+              onClose={() => console.log("Menu closed")}
+            />
           </div>
         </div>
       </div>
