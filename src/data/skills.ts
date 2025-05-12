@@ -15,6 +15,8 @@ export const skills: Skill[] = [
   { name: "Framer", icon: "framer", category: "frontend" },
   { name: "p5.js", icon: "p5js", category: "frontend" },
   { name: "GSAP", icon: "gsap", category: "frontend" },
+  { name: "React Toastify", icon: "toastify", category: "frontend" },
+  { name: "React Skeleton", icon: "skeleton", category: "frontend" },
 
   // Backend
   { name: "Node.js", icon: "nodejs", category: "backend" },
@@ -25,6 +27,15 @@ export const skills: Skill[] = [
   { name: "MongoDB", icon: "mongodb", category: "backend" },
   { name: "PostgreSQL", icon: "postgresql", category: "backend" },
   { name: "MySQL", icon: "mysql", category: "backend" },
+  { name: "Socket.io", icon: "socketio", category: "backend" },
+  { name: "JWT", icon: "jwt", category: "backend" },
+  { name: "OAuth", icon: "oauth", category: "backend" },
+  { name: "bcrypt", icon: "bcrypt", category: "backend" },
+  { name: "Passport.js", icon: "passportjs", category: "backend" },
+  { name: "Cloudinary", icon: "cloudinary", category: "backend" },
+  { name: "MongoDB Atlas", icon: "mongoatlas", category: "backend" },
+  { name: "Stripe", icon: "stripe", category: "backend" },
+  { name: "PayPal", icon: "paypal", category: "backend" },
 
   // Tools
   { name: "Git", icon: "git", category: "tools" },
@@ -48,4 +59,28 @@ export const skills: Skill[] = [
   { name: "Canva", icon: "canva", category: "tools" },
   { name: "Excel", icon: "excel", category: "tools" },
   { name: "PowerPoint", icon: "powerpoint", category: "tools" },
+  { name: "Unity", icon: "unity", category: "tools" },
+  { name: "Blender", icon: "blender", category: "tools" },
+  { name: "RapidAPI", icon: "rapidapi", category: "tools" },
+  { name: "SQL Server Management Studio", icon: "ssms", category: "tools" },
+  { name: "Microsoft SQL Server", icon: "sqlserver", category: "tools" },
+  { name: "Cloud Security", icon: "cloudsecurity", category: "tools" },
+  { name: "Cisco Packet Tracer", icon: "packettracer", category: "tools" },
+  { name: "Nmap", icon: "nmap", category: "tools" },
+  { name: "Nessus", icon: "nessus", category: "tools" },
+  { name: "OpenVAS", icon: "openvas", category: "tools" },
+  { name: "RADIUS", icon: "radius", category: "tools" },
+  { name: "LDAP", icon: "ldap", category: "tools" },
+  { name: "RBAC", icon: "rbac", category: "tools" },
+  { name: "SSL/TLS", icon: "tls", category: "tools" },
+  { name: "Firewall", icon: "firewall", category: "tools" },
+  { name: "IDS/IPS", icon: "ids", category: "tools" },
+
+  // Creative Tools (from multimedia section)
+  { name: "Adobe Premiere Pro", icon: "premierepro", category: "tools" },
+  { name: "Adobe Photoshop", icon: "photoshop", category: "tools" },
+  { name: "DaVinci Resolve", icon: "davinci", category: "tools" },
+
+  // Productivity
+  { name: "Trello", icon: "trello", category: "tools" },
 ];

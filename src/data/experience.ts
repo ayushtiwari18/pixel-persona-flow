@@ -1,4 +1,3 @@
-
 import { Experience, Education } from "@/types";
 
 export const experiences: Experience[] = [
@@ -7,27 +6,55 @@ export const experiences: Experience[] = [
     company: "Nullclass Edtech Pvt Ltd",
     location: "Remote",
     description:
-      "Worked on a video streaming platform. Contributed to login security, device tracking, and payment gateway integration using the MERN stack. Enhanced UX with key feature implementations.",
+      "Developed and deployed MERN-based full-stack web applications. Integrated secure login with JWT & OAuth, implemented device tracking, and integrated Stripe/PayPal for seamless payments. Enhanced video streaming performance by 30%.",
     startDate: "2024-07",
     endDate: "2024-08",
     technologies: [
       "MongoDB",
-      "Express",
-      "React",
+      "Express.js",
+      "React.js",
       "Node.js",
-      "JavaScript",
-      "Payment Gateway",
+      "JWT",
+      "OAuth",
+      "Stripe",
+      "PayPal",
     ],
   },
   {
-    title: "Cybersecurity Intern",
-    company: "AICTE Virtual Internship",
+    title: "Cloud Network Intern",
+    company: "AICTE Virtual Internship 2024",
     location: "Remote",
     description:
-      "Designed and implemented a home network using Cisco Packet Tracer. Gained hands-on experience in cybersecurity and cloud security fundamentals.",
+      "Analyzed network topologies using Cisco Packet Tracer, identified vulnerabilities, and proposed countermeasures. Hands-on exposure to VLANs, IDS, firewalls, and cybersecurity protocols including RBAC and LDAP.",
     startDate: "2024-05",
     endDate: "2024-07",
-    technologies: ["Cisco Packet Tracer", "Network Security", "Cloud Security"],
+    technologies: [
+      "Cisco Packet Tracer",
+      "Nmap",
+      "OpenVAS",
+      "RBAC",
+      "RADIUS",
+      "VLAN",
+      "Firewall",
+    ],
+  },
+  {
+    title: "Cloud Security Intern",
+    company: "Cisco Networking Academy (AICTE)",
+    location: "Remote",
+    description:
+      "Designed and implemented secure cloud infrastructure using AWS VPC and IAM policies. Configured private subnets, VPN access, and security monitoring for academic record management.",
+    startDate: "2023-05",
+    endDate: "2023-07",
+    technologies: [
+      "AWS VPC",
+      "IAM",
+      "RBAC",
+      "MFA",
+      "SSL/TLS",
+      "Cloud Security",
+      "Monitoring",
+    ],
   },
 ];
 
@@ -39,17 +66,17 @@ export const education: Education[] = [
     startDate: "2022",
     endDate: "2026",
     description:
-      "AICTE accredited. Engaged in various projects, hackathons, and leadership roles. Current CGPA: 7.39",
+      "NBA-accredited program. Active participant in hackathons, research projects, and developer communities. Current CGPA: 7.54.",
     location: "Jabalpur, Madhya Pradesh, India",
   },
   {
     institution: "Joy Senior Secondary School",
     degree: "12th CBSE",
-    field: "Science (PCM)",
+    field: "Science (Physics, Chemistry, Math)",
     startDate: "2020",
     endDate: "2022",
     description:
-      "Completed 12th Grade with 87.32% marks. Participated in science exhibitions and Olympiads.",
+      "Secured 82.32% marks. Participated in science exhibitions and technology outreach programs.",
     location: "Jabalpur, Madhya Pradesh, India",
   },
   {
@@ -59,7 +86,7 @@ export const education: Education[] = [
     startDate: "2018",
     endDate: "2020",
     description:
-      "Scored 83.62%. School topper in multiple subjects and actively participated in extracurricular activities.",
+      "Scored 83.62%. Demonstrated academic excellence and contributed actively in extracurricular clubs.",
     location: "Jabalpur, Madhya Pradesh, India",
   },
 ];

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { motion } from "framer-motion";
 
@@ -26,7 +25,6 @@ export default function AboutMeCard({ isInView }: AboutMeCardProps) {
     },
   };
 
-  // Card hover animation
   const cardHoverAnimation = {
     scale: 1.02,
     boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)",
@@ -51,28 +49,30 @@ export default function AboutMeCard({ isInView }: AboutMeCardProps) {
         variants={itemVariants}
         className="text-muted-foreground mb-6 leading-relaxed"
       >
-        I'm a dedicated full-stack developer with over 7 years of
-        experience creating web and mobile applications. My journey began
-        with a curiosity about how websites work, which led me to pursue
-        degrees in Computer Science.
+        I'm Ayush Tiwari, a passionate full-stack developer and cybersecurity
+        enthusiast currently pursuing B.Tech in Computer Science. I specialize
+        in building scalable web applications using the MERN stack and enjoy
+        solving real-world problems through technology.
       </motion.p>
       <motion.p
         variants={itemVariants}
         className="text-muted-foreground mb-6 leading-relaxed"
       >
-        Throughout my career, I've worked with various technologies and
-        frameworks, always striving to stay at the forefront of web
-        development. I'm particularly passionate about creating intuitive
-        user interfaces and optimizing application performance.
+        I've interned with organizations like Nullclass and Cisco Networking
+        Academy, where I worked on secure authentication systems, cloud
+        infrastructure, and video streaming optimization. My projects span from
+        sports management systems to interactive ocean literacy platforms.
       </motion.p>
       <motion.p
         variants={itemVariants}
         className="text-muted-foreground leading-relaxed"
       >
-        When I'm not coding, you can find me exploring new technologies,
-        contributing to open-source projects, or sharing my knowledge
-        through blog posts and community discussions.
+        Outside of development, I love exploring creative tools like Blender and
+        Figma, contributing to hackathons, and leading initiatives that blend
+        education with innovation. I'm driven by curiosity, collaboration, and a
+        desire to make technology more meaningful.
       </motion.p>
+      
     </motion.div>
   );
 }

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { motion } from "framer-motion";
 
@@ -18,8 +17,10 @@ export default function AboutHeader({ isInView }: AboutHeaderProps) {
         About Me
       </h2>
       <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
-        Full Stack Developer with a passion for creating beautiful,
-        responsive, and user-friendly web applications.
+        B.Tech student, Full Stack Developer, and Cloud Security Intern with
+        hands-on experience building secure, scalable, and interactive web
+        platforms. Passionate about merging technology with education through
+        gamified and immersive learning experiences.
       </p>
     </motion.div>
   );

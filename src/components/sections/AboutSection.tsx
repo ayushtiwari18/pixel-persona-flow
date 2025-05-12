@@ -1,9 +1,9 @@
-
 import { useRef } from "react";
 import { useInView } from "framer-motion";
 
 import AboutHeader from "../about/AboutHeader";
 import AboutMeCard from "../about/AboutMeCard";
+import LinkedInBadgeSection from "../about/LinkedInBadgeSection";
 import EducationSection from "../about/EducationSection";
 import WorkExperienceSection from "../about/WorkExperienceSection";
 
@@ -17,8 +17,13 @@ export default function AboutSection() {
         <AboutHeader isInView={isInView} />
 
         <div ref={ref} className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-          <AboutMeCard isInView={isInView} />
+          {/* Left Column */}
+          <div className="space-y-12">
+            <AboutMeCard isInView={isInView} />
+            <LinkedInBadgeSection isInView={isInView} />
+          </div>
 
+          {/* Right Column */}
           <div className="space-y-12">
             <EducationSection isInView={isInView} />
             <WorkExperienceSection isInView={isInView} />

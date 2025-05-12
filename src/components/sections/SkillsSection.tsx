@@ -2,7 +2,84 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { skills } from "@/data/skills";
 
-// Component to display a skill badge with improved hover effects
+// Helper function: Get Icons8 image URL based on skill name
+function getIconEmoji(icon: string): string {
+  const iconMap: Record<string, string> = {
+    html5: "https://img.icons8.com/color/48/html-5.png",
+    css3: "https://img.icons8.com/color/48/css3.png",
+    javascript: "https://img.icons8.com/color/48/javascript--v1.png",
+    typescript: "https://img.icons8.com/color/48/typescript.png",
+    react: "https://img.icons8.com/plasticine/48/react.png",
+    nextjs:
+      "https://img.icons8.com/?size=100&id=MWiBjkuHeMVq&format=png&color=000000",
+    redux: "https://img.icons8.com/color/48/redux.png",
+    tailwind: "https://img.icons8.com/color/48/tailwindcss.png",
+    sass: "https://img.icons8.com/color/48/sass.png",
+    materialui: "https://img.icons8.com/color/48/material-ui.png",
+    framer:
+      "https://img.icons8.com/?size=100&id=G7NMjcZM9R01&format=png&color=000000",
+    threejs:
+      "https://img.icons8.com/?size=100&id=5hf4XRUvAyeP&format=png&color=000000",
+    vite: "https://img.icons8.com/color/48/vite.png",
+    nodejs: "https://img.icons8.com/color/48/nodejs.png",
+    express:
+      "https://img.icons8.com/?size=100&id=WNoJgbzDr3i2&format=png&color=000000",
+    mongodb: "https://img.icons8.com/color/48/mongodb.png",
+    postgresql: "https://img.icons8.com/color/48/postgreesql.png",
+    mysql: "/icons/mysql.png",
+    azure: "https://img.icons8.com/color/48/microsoft-azure.png",
+    firebase: "https://img.icons8.com/color/48/firebase.png",
+    graphql: "https://img.icons8.com/color/48/graphql.png",
+    docker: "https://img.icons8.com/color/48/docker.png",
+    git: "https://img.icons8.com/color/48/git.png",
+    github: "https://img.icons8.com/ios-glyphs/48/github.png",
+    vscode: "https://img.icons8.com/color/48/visual-studio-code-2019.png",
+    figma: "https://img.icons8.com/color/48/figma--v1.png",
+    webpack: "https://img.icons8.com/color/48/webpack.png",
+    jest: "https://img.icons8.com/color/48/jest-can.png",
+    cypress: "https://img.icons8.com/ios-filled/50/cypress.png",
+    npm: "https://img.icons8.com/color/48/npm.png",
+    postman:
+      "https://img.icons8.com/external-tal-revivo-color-tal-revivo/48/postman-api-platform.png",
+    aws: "https://img.icons8.com/color/48/amazon-web-services.png",
+    jwt: "https://img.icons8.com/external-tal-revivo-color-tal-revivo/48/jwt.png",
+    oauth: "https://img.icons8.com/color/48/oauth.png",
+    bcrypt: "https://img.icons8.com/ios-filled/50/lock-2.png",
+    socketio:
+      "/icons/socketio.png",
+    sqlserver: "https://img.icons8.com/color/48/microsoft-sql-server.png",
+    ssms: "https://img.icons8.com/color/48/sql.png",
+    linux: "https://img.icons8.com/color/48/linux.png",
+    nmap: "https://img.icons8.com/external-flat-icons-inmotus-design/67/external-nmap-programming-and-coding-flat-icons-inmotus-design.png",
+    nessus:
+      "https://img.icons8.com/external-flat-juicy-fish/60/external-cyber-security-security-flat-juicy-fish.png",
+    openvas:
+      "https://img.icons8.com/external-nawicon-flat-nawicon/64/external-scan-technology-nawicon-flat-nawicon.png",
+    ldap: "https://img.icons8.com/color/48/database.png",
+    radius: "https://img.icons8.com/color/48/wifi.png",
+    rbac: "https://img.icons8.com/ios-filled/50/privacy.png",
+    tls: "https://img.icons8.com/fluency/48/ssl.png",
+    ssl: "https://img.icons8.com/color/48/ssl.png",
+    vpn: "https://img.icons8.com/color/48/vpn.png",
+    ids: "https://img.icons8.com/color/48/firewall.png",
+    ips: "https://img.icons8.com/color/48/network-card.png",
+    cisco: "https://img.icons8.com/color/48/cisco.png",
+    python: "https://img.icons8.com/color/48/python--v1.png",
+    java: "https://img.icons8.com/color/48/java-coffee-cup-logo.png",
+    cplusplus: "https://img.icons8.com/color/48/c-plus-plus-logo.png",
+    bootstrap:
+      "https://img.icons8.com/?size=100&id=g9mmSxx3SwAI&format=png&color=000000",
+    d3js: "https://img.icons8.com/?size=100&id=uWTZqDq36mIl&format=png&color=000000",
+    p5js: "/icons/p5js.png",
+    api: "https://img.icons8.com/?size=100&id=121837&format=png&color=000000",
+  };
+
+  return (
+    iconMap[icon.toLowerCase()] || "https://img.icons8.com/ios/50/code.png"
+  );
+}
+
+// Badge component with icon
 const SkillBadge = ({
   name,
   icon,
@@ -21,65 +98,27 @@ const SkillBadge = ({
       className="bg-background rounded-lg p-4 shadow-sm border flex flex-col items-center hover:border-primary/50 hover:shadow-md transition-all duration-300"
     >
       <div className="h-14 w-14 mb-3 flex items-center justify-center">
-        <span className="text-4xl">{getIconEmoji(icon)}</span>
+        <img
+          src={getIconEmoji(icon)}
+          alt={`${name} icon`}
+          className="h-12 w-12 object-contain"
+        />
       </div>
       <span className="text-sm font-medium text-center">{name}</span>
     </motion.div>
   );
 };
 
-// Helper function to get an emoji based on skill name/icon
-function getIconEmoji(icon: string): string {
-  const iconMap: Record<string, string> = {
-    html5: "🌐",
-    css3: "🎨",
-    javascript: "📜",
-    typescript: "🔷",
-    react: "⚛️",
-    nextjs: "▲",
-    redux: "🔄",
-    tailwind: "💨",
-    sass: "💅",
-    materialui: "📱",
-    framer: "🎭",
-    threejs: "🥽",
-    nodejs: "🟢",
-    express: "🚂",
-    python: "🐍",
-    django: "🦄",
-    mongodb: "🍃",
-    postgresql: "🐘",
-    firebase: "🔥",
-    graphql: "📊",
-    api: "🔌",
-    docker: "🐳",
-    git: "📂",
-    github: "🐙",
-    vscode: "💻",
-    figma: "🖌️",
-    webpack: "📦",
-    jest: "🃏",
-    cypress: "🔍",
-    npm: "📦",
-    postman: "👨‍🚀",
-    aws: "☁️",
-  };
-
-  return iconMap[icon] || "🔧";
-}
-
 export default function SkillsSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
 
-  // Group skills by category
   const frontendSkills = skills.filter(
     (skill) => skill.category === "frontend"
   );
   const backendSkills = skills.filter((skill) => skill.category === "backend");
   const toolsSkills = skills.filter((skill) => skill.category === "tools");
 
-  // Animation variants for container and children
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -162,7 +201,7 @@ export default function SkillsSection() {
             </div>
           </motion.div>
 
-          {/* Tools */}
+          {/* Tools & DevOps */}
           <motion.div
             variants={containerVariants}
             initial="hidden"
