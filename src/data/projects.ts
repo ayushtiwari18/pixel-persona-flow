@@ -6,7 +6,7 @@ export const projects: Project[] = [
     title: "Marine Minds – Ocean Literacy Platform",
     description:
       "An immersive platform promoting ocean literacy through gamified learning, virtual lab simulations, and Unity-based exploration. Combines scientific data visualization with interactive 3D environments.",
-    image: "/marine-minds.png",
+    image: "/Projects/marine-minds.jpg",
     demoUrl: "https://mm-qgbd.onrender.com/",
     githubUrl: "https://github.com/ayushtiwari18/MM",
     technologies: [
@@ -31,7 +31,7 @@ export const projects: Project[] = [
     title: "GameON – Sports Tournament Management System",
     description:
       "A centralized platform for organizing and tracking sports tournaments. Supports real-time match updates, player analytics, and notifications using Socket.io and Azure SQL.",
-    image: "/gameon.png",
+    image: "/Projects/gameon.jpg",
     demoUrl: "https://game-on.me/",
     githubUrl: "https://github.com/ayushtiwari18/GameON",
     technologies: [
@@ -56,7 +56,7 @@ export const projects: Project[] = [
     title: "EchoMeet – Zoom-Inspired Video Conferencing",
     description:
       "A MERN stack-based video conferencing app with screen sharing, real-time chat, and meeting room generation using Socket.io. Designed as a lightweight Zoom alternative.",
-    image: "/echomeet.png",
+    image: "/Projects/echomeet.jpg",
     demoUrl: "https://echomeet-at.netlify.app/",
     githubUrl: "https://github.com/ayushtiwari18/EchoMeet",
     technologies: [
@@ -78,7 +78,7 @@ export const projects: Project[] = [
     title: "AuroraFlow – YouTube-Inspired Video Streaming App",
     description:
       "A responsive frontend-only app using React.js and RapidAPI for streaming real-time video content. Features category filters, search functionality, and dynamic rendering.",
-    image: "/auroraflow.png",
+    image: "/Projects/auroraflow.jpg",
     demoUrl: "https://aurora-flow.netlify.app/",
     githubUrl: "https://github.com/ayushtiwari18/AuroraFlow",
     technologies: ["React.js", "CSS", "RapidAPI", "Netlify"],
@@ -92,7 +92,7 @@ export const projects: Project[] = [
     title: "Wanderlust – Travel Booking Platform",
     description:
       "Airbnb-style platform supporting listing creation, booking flow, reviews, and map-based property discovery. Implements Passport.js, session handling, and Cloudinary for media uploads.",
-    image: "/wanderlust.png",
+    image: "/Projects/wanderlust.png",
     demoUrl: "https://wanderlust-chlq.onrender.com/listings",
     githubUrl: "https://github.com/ayushtiwari18/Wanderlust_",
     technologies: [
@@ -116,7 +116,7 @@ export const projects: Project[] = [
     title: "Simon-Says – Color Memory Game",
     description:
       "Classic color memory game using vanilla JavaScript. Includes animated sequences, level progression, and auditory feedback for engagement across devices.",
-    image: "/simon-says.png",
+    image: "/Projects/simon-says.jpg",
     demoUrl: "https://simon-si-game.netlify.app/",
     githubUrl: "https://github.com/ayushtiwari18/Simon-Says-Game",
     technologies: ["HTML5", "CSS3", "JavaScript"],

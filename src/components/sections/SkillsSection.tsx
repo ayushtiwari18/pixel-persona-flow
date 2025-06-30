@@ -75,7 +75,8 @@ function getIconEmoji(icon: string): string {
   };
 
   return (
-    iconMap[icon.toLowerCase()] || "https://img.icons8.com/ios/50/code.png"
+    iconMap[icon.toLowerCase()] ||
+    "https://img.icons8.com/?size=100&id=FZQamLEORsJ1&format=png&color=000000"
   );
 }
 
